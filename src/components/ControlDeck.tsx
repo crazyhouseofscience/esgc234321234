@@ -40,6 +40,7 @@ interface ControlDeckProps {
   onTogglePlay: () => void;
   onStepForward: () => void;
   onReset: () => void;
+  onOpenSummary?: () => void;
 }
 
 const CLIMATE_PRIMARY_KEYS: (keyof SimulationVariables)[] = [
@@ -67,6 +68,7 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
   onTogglePlay,
   onStepForward,
   onReset,
+  onOpenSummary,
 }) => {
   const [showAllClimateVars, setShowAllClimateVars] = useState(false);
 
@@ -277,7 +279,18 @@ export const ControlDeck: React.FC<ControlDeckProps> = ({
         </div>
       ) : (
         /* Tab 2: Field Photo, Reservoirs, Biological Roles, Key Cycle Steps, Gases & Guided Experiments */
-        <div className="flex-1 min-h-0 p-3.5 space-y-4 overflow-y-auto">
+        <div className="flex-1 min-h-0 p-3 space-y-3.5 overflow-y-auto">
+          {onOpenSummary && (
+            <button
+              type="button"
+              onClick={onOpenSummary}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-sky-200 bg-sky-50 text-sky-900 text-xs font-semibold hover:bg-sky-100 transition-colors cursor-pointer"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-sky-700" />
+              <span>Read Full Cycle Summary &amp; Study Q&amp;A</span>
+            </button>
+          )}
+
           {/* Authentic Field Specimen Image for the Active Cycle */}
           <div className="rounded-lg overflow-hidden border border-slate-200 bg-slate-900">
             <img

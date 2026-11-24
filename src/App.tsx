@@ -11,6 +11,7 @@ import { ControlDeck, type ControlDeckTab } from './components/ControlDeck';
 import { TrendAnalytics } from './components/TrendAnalytics';
 import { ClassroomDashboard } from './components/ClassroomDashboard';
 import { ExportModal } from './components/ExportModal';
+import { CycleSummaryModal } from './components/CycleSummaryModal';
 import type {
   ClassroomRoomState,
   GroupSnapshot,
@@ -195,6 +196,7 @@ export default function App() {
     'connecting'
   );
   const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
+  const [isSummaryOpen, setIsSummaryOpen] = useState<boolean>(false);
 
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -588,6 +590,7 @@ export default function App() {
                   onTogglePlay={() => setIsPlaying((p) => !p)}
                   onStepForward={handleStepForward}
                   onReset={handleReset}
+                  onOpenSummary={() => setIsSummaryOpen(true)}
                 />
               </div>
 
@@ -600,9 +603,7 @@ export default function App() {
                   onSelectNode={setSelectedNodeId}
                   showDescriptors={showDescriptors}
                   onToggleDescriptors={() => setShowDescriptors((prev) => !prev)}
-                  onOpenGuide={() =>
-                    setDeckTab((prev) => (prev === 'guide' ? 'controls' : 'guide'))
-                  }
+                  onOpenGuide={() => setIsSummaryOpen(true)}
                 />
 
                 {/* Ultra-Slim Single-Row Module KPI Strip */}
@@ -678,6 +679,13 @@ export default function App() {
         variables={variables}
         series={series}
         currentMetrics={currentMetrics}
+      />
+
+      <CycleSummaryModal
+        isOpen={isSummaryOpen}
+        onClose={() => setIsSummaryOpen(false)}
+        activeModule={activeModule}
+        onSwitchModule={handleSelectModule}
       />
     </div>
   );

@@ -36,9 +36,22 @@ export interface CycleFactItem {
   detail: string;
 }
 
+export interface StudyQuestionItem {
+  question: string;
+  explanation: string;
+}
+
+export interface KeyTermItem {
+  term: string;
+  definition: string;
+}
+
 export interface DiscussionGuide {
   mainReservoirs: string;
   biologicalNeeds: string;
+  narrativeSummary: string[];
+  keyTerms: KeyTermItem[];
+  studyQuestions: StudyQuestionItem[];
   keyFacts: CycleFactItem[];
   substances: SubstanceItem[];
   discussionPrompts: string[];
@@ -55,6 +68,52 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
       'Atmosphere (CO₂ gas), living plants & animals, soil humus, fossil fuels underground, and dissolved carbon in Earth’s oceans (largest active surface sink).',
     biologicalNeeds:
       'Carbon forms the molecular backbone of carbohydrates (glucose C₆H₁₂O₆), proteins, fats/lipids, and DNA in all living cells.',
+    narrativeSummary: [
+      'Carbon constantly moves between Earth’s air, living things, soils, underground rocks, and oceans. Carbon enters the living food web when plants and trees (primary producers) absorb carbon dioxide gas (CO₂) from the atmosphere during photosynthesis and use sunlight to build glucose sugars (C₆H₁₂O₆), wood, and deep roots. Animals (consumers) then obtain carbon by eating plants or eating other animals.',
+      'Carbon returns to the atmosphere naturally through cellular respiration by plants, animals, and soil decomposers. When plants and animals die or produce waste, decomposers (bacteria and fungi) and detritus feeders (worms, insects) break down the dead organic matter—returning some carbon to rich soil humus and releasing CO₂ back into the air. Over millions of years, deeply buried ancient plants and marine organisms compressed under extreme heat and pressure without oxygen transformed into fossil fuels (coal, oil, and natural gas).',
+      'Human activities accelerate atmospheric CO₂ buildup in two major ways: burning fossil fuels (combustion in factories, power plants, and vehicles) rapidly releases ancient underground carbon into the sky, while clearing forests (deforestation) reduces photosynthesis and releases stored wood carbon. Meanwhile, Earth’s oceans exchange CO₂ two ways across the sea surface—absorbing excess CO₂ helps slow atmospheric warming, but dissolving extra CO₂ forms carbonic acid (H₂CO₃), lowering ocean pH (ocean acidification).',
+    ],
+    keyTerms: [
+      { term: 'Atmosphere (CO₂)', definition: 'Gaseous carbon dioxide reservoir in the air; traps infrared heat and feeds plant photosynthesis.' },
+      { term: 'Photosynthesis', definition: 'Process where plants absorb CO₂ gas and water using sunlight to make glucose sugar (C₆H₁₂O₆) and O₂.' },
+      { term: 'Consumption', definition: 'Transfer of carbon-rich organic molecules when herbivores eat plants and carnivores eat other consumers.' },
+      { term: 'Cellular Respiration', definition: 'Natural process in plants, animals, and microbes that breaks down sugars for energy and releases CO₂ gas.' },
+      { term: 'Decomposers & Detritus Feeders', definition: 'Bacteria, fungi, worms, and insects that break down dead matter into soil humus and respire CO₂.' },
+      { term: 'Fossil Fuels (Coal, Oil, Gas)', definition: 'Underground carbon deposits formed over millions of years from buried remains under heat and pressure without oxygen.' },
+      { term: 'Combustion & Ocean Exchange', definition: 'Burning fossil fuels emits CO₂; oceans exchange CO₂ two ways with air, forming carbonic acid (H₂CO₃) when excess CO₂ dissolves.' },
+    ],
+    studyQuestions: [
+      {
+        question: 'How does carbon enter living plants from the atmosphere?',
+        explanation:
+          'Plants (primary producers) absorb CO₂ gas through tiny leaf pores (stomata) during photosynthesis, combining CO₂ and water with sunlight energy to make glucose sugars (6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂).',
+      },
+      {
+        question: 'How does carbon move from plants (primary producers) to animals (consumers)?',
+        explanation:
+          'Animals obtain carbon by eating plants (herbivores) or eating other animals (carnivores/omnivores), incorporating plant sugars, starches, and proteins into animal tissue.',
+      },
+      {
+        question: 'Name natural and human processes that return carbon dioxide (CO₂) to the atmosphere.',
+        explanation:
+          'Natural processes include cellular respiration (by plants, animals, and soil decomposers) and wildfires. Human processes include burning fossil fuels (combustion in factories/vehicles) and clearing/burning forests.',
+      },
+      {
+        question: 'What role do decomposers and detritus feeders play in the carbon cycle?',
+        explanation:
+          'Detritus feeders (worms, insects) and decomposers (bacteria, fungi) break down dead organisms and waste, recycling nutrients into dark soil humus while releasing CO₂ gas back to the atmosphere through respiration.',
+      },
+      {
+        question: 'What are fossil fuels, and how are they formed underground?',
+        explanation:
+          'Fossil fuels (coal, oil, and natural gas) are energy-rich carbon deposits formed over millions of years when ancient plants and marine organisms were buried under sediment and compressed by intense heat and pressure without oxygen.',
+      },
+      {
+        question: 'How does burning fossil fuels (combustion) change the atmosphere and oceans?',
+        explanation:
+          'Combustion rapidly unlocks carbon that had been stored underground for millions of years, raising atmospheric CO₂ concentration. Some excess CO₂ dissolves into the ocean, forming carbonic acid (H₂CO₃) and lowering ocean pH.',
+      },
+    ],
     keyFacts: [
       {
         topic: 'Photosynthesis & Food Chains',
@@ -105,6 +164,52 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
       'Earth’s atmosphere is 78% nitrogen gas (N₂), making air the largest nitrogen reservoir, alongside soil organic matter and dissolved nitrates.',
     biologicalNeeds:
       'Every living organism needs nitrogen to build Proteins (amino acids) and Nucleic Acids (DNA and RNA), as well as ATP and plant chlorophyll.',
+    narrativeSummary: [
+      'Nitrogen is essential for every living cell because organisms need it to build proteins (amino acids) and nucleic acids (DNA and RNA). Although nitrogen gas (N₂) makes up 78% of Earth’s atmosphere, neither plants nor animals can breathe in or absorb N₂ directly—its two nitrogen atoms are locked together by a very strong triple covalent bond (N≡N) that multicellular organisms cannot break.',
+      'To enter the living ecosystem, N₂ must first undergo nitrogen fixation. Nitrogen-fixing bacteria living in soil and inside root nodules of legume plants (such as clover, beans, and peas)—along with high-energy lightning strikes—break the N₂ triple bond and convert it into plant-usable ammonia and ammonium (NH₃ / NH₄⁺). Soil bacteria then carry out nitrification, converting ammonium into nitrites (NO₂⁻) and nitrates (NO₃⁻). Plants absorb ammonium and nitrate through their roots (assimilation) to build proteins and DNA, and herbivores obtain nitrogen by eating plants.',
+      'When plants and animals produce waste or die, decomposers convert organic nitrogen back into ammonium through ammonification so it can re-enter the soil cycle. Finally, in low-oxygen, waterlogged soils such as riparian wetlands, denitrifying bacteria convert excess nitrate (NO₃⁻) back into N₂ gas (denitrification), completing the nitrogen cycle. When farms apply heavy synthetic fertilizer or concentrate livestock while wetlands are drained, excess soluble nitrate washes into rivers and bays, causing algal blooms and releasing nitrous oxide (N₂O), a potent greenhouse gas.',
+    ],
+    keyTerms: [
+      { term: 'Atmospheric N₂ (78%)', definition: 'Makes up 78% of Earth’s air; unusable directly due to its strong triple covalent bond (N≡N).' },
+      { term: 'Nitrogen Fixation', definition: 'Conversion of atmospheric N₂ gas into ammonia/ammonium (NH₃ / NH₄⁺) by specialized bacteria or lightning.' },
+      { term: 'Nitrogen-Fixing Bacteria', definition: 'Microbes in soil and legume root nodules (clover, beans) with enzymes that split the N≡N bond.' },
+      { term: 'Ammonification', definition: 'Decomposers breaking down animal waste and dead organisms into soil ammonium (NH₄⁺).' },
+      { term: 'Nitrification', definition: 'Soil bacteria oxidizing ammonium (NH₄⁺) into nitrite (NO₂⁻) and plant-ready nitrate (NO₃⁻).' },
+      { term: 'Assimilation & Consumption', definition: 'Plants absorb soil NO₃⁻/NH₄⁺ to make proteins and DNA/RNA; animals eat plants or other animals to get nitrogen.' },
+      { term: 'Denitrification', definition: 'Wetland bacteria converting nitrate (NO₃⁻) back into N₂ gas, completing the cycle and protecting estuaries.' },
+    ],
+    studyQuestions: [
+      {
+        question: 'What percentage of Earth’s atmosphere is nitrogen gas (N₂), and why can’t plants or animals use it directly?',
+        explanation:
+          'Nitrogen gas (N₂) makes up 78% of Earth’s atmosphere. Plants and animals cannot use it straight from the air because the two nitrogen atoms are held together by a very strong triple covalent bond (N≡N) that only nitrogen-fixing bacteria or lightning can break.',
+      },
+      {
+        question: 'Why do living things need nitrogen (name at least two biological molecules that contain it)?',
+        explanation:
+          'Living organisms need nitrogen to build proteins (made of amino acids) and nucleic acids (DNA and RNA), as well as cellular energy molecules (ATP) and plant chlorophyll.',
+      },
+      {
+        question: 'What is the role of nitrogen-fixing bacteria in soil and plant root nodules?',
+        explanation:
+          'Nitrogen-fixing bacteria (such as Rhizobia inside clover and bean root nodules) convert unusable atmospheric N₂ gas into usable ammonia and ammonium (NH₃ / NH₄⁺) in the soil.',
+      },
+      {
+        question: 'What happens during ammonification and nitrification in the soil?',
+        explanation:
+          'During ammonification, decomposers convert dead organisms and animal waste into ammonium (NH₄⁺). During nitrification, nitrifying soil bacteria convert ammonium into nitrites (NO₂⁻) and nitrates (NO₃⁻) that plants absorb.',
+      },
+      {
+        question: 'How do herbivores and other animals obtain the nitrogen they need?',
+        explanation:
+          'Herbivores and other animals obtain nitrogen through consumption—by eating plants (which assimilated nitrates into plant proteins and DNA) or eating other animals.',
+      },
+      {
+        question: 'What happens during denitrification to complete the nitrogen cycle?',
+        explanation:
+          'In oxygen-poor wetland soils, denitrifying bacteria convert dissolved nitrates (NO₃⁻) back into nitrogen gas (N₂), returning it to the atmosphere and preventing excess nitrate from polluting coastal bays.',
+      },
+    ],
     keyFacts: [
       {
         topic: 'Why Air N₂ Cannot Be Used Directly',
@@ -155,6 +260,52 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
       'Sedimentary phosphate rock formations on land and deep marine sediments on the ocean floor (NO atmospheric gas reservoir).',
     biologicalNeeds:
       'Living cells require phosphorus to build DNA and RNA, ATP (cellular energy), cell membrane phospholipids, and animal bones and teeth.',
+    narrativeSummary: [
+      'Unlike water, carbon, and nitrogen, the phosphorus cycle has NO atmospheric gas phase—phosphorus never circulates through the air as a gas. Instead, Earth’s main phosphorus reservoir is locked inside sedimentary phosphate rock formations on land and deep marine sediments on the ocean floor. Living cells need phosphorus to construct DNA and RNA, the energy molecule ATP, cell membrane phospholipids, and vertebrate bones and teeth.',
+      'Phosphorus slowly enters ecosystems when rain, wind, and erosion weather phosphate rocks, dissolving phosphate ions (PO₄³⁻) into soil and freshwater. Plants absorb dissolved phosphate from soil through their roots, and animals incorporate phosphorus by eating plants or eating other animals. When plants and animals produce waste or die, decomposers break down their tissues and return inorganic phosphate back to the soil and water.',
+      'Human actions like phosphate rock mining, clearing land (which exposes bare soil to rain erosion), and discharging phosphate-rich detergents and wastewater rapidly flush extra PO₄³⁻ down rivers into coastal deltas, sparking harmful algal blooms. Once dissolved phosphate settles with dead plankton onto the ocean floor, it becomes buried in marine sediment—returning to land only over millions of years through plate tectonics and geologic upthrust.',
+    ],
+    keyTerms: [
+      { term: 'No Gas Phase', definition: 'Unlike C, N, and H₂O, phosphorus has no gaseous form and never cycles through Earth’s atmosphere.' },
+      { term: 'Phosphate Rock Reservoir', definition: 'Sedimentary rock formations (Ca₃(PO₄)₂) on land and seafloor sediments holding most Earth phosphorus.' },
+      { term: 'Weathering & Erosion', definition: 'Rain and physical breakdown slowly releasing dissolved PO₄³⁻ from rocks into soil and rivers.' },
+      { term: 'Absorption & Consumption', definition: 'Plants take in PO₄³⁻ through roots; animals eat plants/prey to build DNA, RNA, ATP, membranes, and bones.' },
+      { term: 'Decomposition', definition: 'Decomposers break down waste and dead organisms, returning PO₄³⁻ to soil and water.' },
+      { term: 'Runoff & Marine Sediment', definition: 'Rivers carry dissolved/eroded PO₄³⁻ to the ocean, where it settles and locks into seafloor sediments.' },
+      { term: 'Geologic Upthrust', definition: 'Tectonic plate uplift over millions of years raising seafloor sedimentary rock back onto land.' },
+    ],
+    studyQuestions: [
+      {
+        question: 'Where is the main reservoir of phosphorus located on Earth?',
+        explanation:
+          'Most phosphorus is stored in sedimentary phosphate rock formations on land and in deep marine sediments on the ocean floor—not in the atmosphere.',
+      },
+      {
+        question: 'Why is phosphorus an important biological molecule for cells and living organisms?',
+        explanation:
+          'Cells require phosphorus to build DNA and RNA (genetic code), ATP (cellular energy), phospholipid cell membranes, and animal bones and teeth.',
+      },
+      {
+        question: 'How does phosphorus move from rocks into soil and water, and then into living organisms?',
+        explanation:
+          'Weathering and erosion (plus mining) release dissolved phosphate (PO₄³⁻) from rocks into soil and water. Plants absorb it through their roots, and animals obtain it by eating plants or other animals.',
+      },
+      {
+        question: 'What happens to phosphates when plants and animals produce waste or die?',
+        explanation:
+          'Decomposers break down dead organisms and animal waste, returning inorganic phosphate ions (PO₄³⁻) back to the soil and water for plants to reuse.',
+      },
+      {
+        question: 'How is the phosphorus cycle different from the water, carbon, and nitrogen cycles?',
+        explanation:
+          'Phosphorus has NO atmospheric gas phase—it does not evaporate or enter the sky as a gas, moving instead through rock, soil, water, organisms, and ocean sediment.',
+      },
+      {
+        question: 'How does phosphorus trapped in ocean sediment eventually return to land?',
+        explanation:
+          'Once phosphate settles into marine sediments on the ocean floor, it can only return to land over millions of years through plate tectonic uplift (geologic upthrust) raising seafloor rock into new mountains.',
+      },
+    ],
     keyFacts: [
       {
         topic: 'No Atmospheric Gas Phase',
@@ -204,6 +355,51 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
       'Oceans hold ~97% of Earth’s water. Freshwater is stored in glaciers/ice caps, underground aquifers, lakes, rivers, and atmospheric vapor.',
     biologicalNeeds:
       'Organisms need water for: (1) photosynthesis & cellular metabolism, (2) transporting nutrients/oxygen in blood and plant sap, (3) regulating body temperature, and (4) aquatic habitats.',
+    narrativeSummary: [
+      'Water is essential for every living organism and ecosystem: cells need it for photosynthesis and chemical reactions, blood and plant sap use it to transport nutrients, sweat and evaporation regulate body temperature, and rivers/oceans provide aquatic habitats. About 97% of all water on Earth is stored in the oceans. Solar energy from the Sun drives the water cycle by heating ocean and land surfaces, causing liquid water to evaporate upward as water vapor gas. Trees and plants also return water vapor directly to the atmosphere through their leaves via transpiration.',
+      'High in the sky, water vapor cools and condenses into clouds. Gravity then pulls water droplets and ice crystals back down to Earth as precipitation (rain, sleet, or snow). The amount of precipitation an ecosystem receives directly controls soil moisture and plant life—determining whether an area supports a lush forest, grassland, or desert, and shaping which animals can find food, shelter, and drinking water there.',
+      'Once precipitation reaches land, it travels back toward the ocean along two main pathways: (1) surface runoff flowing rapidly across streets, valleys, and rivers, and (2) infiltration soaking into soil and permeable rock, sand, or gravel layers called aquifers, where groundwater slowly moves toward the sea via subsurface seepage. Replacing forests with paved cities blocks infiltration, spiking flash surface runoff while draining underground aquifers.',
+    ],
+    keyTerms: [
+      { term: 'Ocean Storage (~97%) & Sun Energy', definition: 'Oceans hold ~97% of Earth’s water; solar energy from the Sun powers evaporation into vapor.' },
+      { term: 'Transpiration', definition: 'Release of water vapor directly from trees and plants into the atmosphere through leaf pores (stomata).' },
+      { term: 'Precipitation & Gravity', definition: 'Condensed cloud droplets/ice pulled back to Earth by gravity as rain, sleet, or snow.' },
+      { term: 'Surface Runoff', definition: 'Water flowing overland across soil, paved roads, streams, and rivers back into the ocean.' },
+      { term: 'Aquifer & Infiltration', definition: 'An underground layer of permeable rock, sand, or gravel holding groundwater recharged by soaking rain.' },
+      { term: 'Aquifer Seepage', definition: 'Slow underground movement of groundwater through rock pores from land into rivers and the ocean.' },
+    ],
+    studyQuestions: [
+      {
+        question: 'Name three important needs for water in living organisms and ecosystems.',
+        explanation:
+          'Living organisms and ecosystems need water for: (1) photosynthesis and cellular chemical reactions, (2) transporting nutrients and oxygen in blood and plant sap, (3) regulating body temperature, and (4) providing aquatic habitats.',
+      },
+      {
+        question: 'Where is most of Earth’s water stored, and what energy source drives evaporation from it?',
+        explanation:
+          'Roughly 97% of all Earth’s water is stored in the oceans. Solar energy (heat from the Sun) drives evaporation from the ocean surface into atmospheric water vapor.',
+      },
+      {
+        question: 'What force draws water back to Earth as precipitation, and how does transpiration work?',
+        explanation:
+          'Gravity pulls condensed cloud droplets and ice back to Earth as precipitation (rain, sleet, or snow). Meanwhile, trees and plants pull up soil water and release water vapor directly to the air through leaves via transpiration.',
+      },
+      {
+        question: 'What is an aquifer, and how does water move from it to the ocean?',
+        explanation:
+          'An aquifer is an underground layer of permeable rock, sand, or gravel that stores groundwater. Water slowly travels from an aquifer to the ocean by seeping underground through rock pores (subsurface seepage).',
+      },
+      {
+        question: 'Name two ways water travels from land into the ocean.',
+        explanation:
+          'Water moves from land to the ocean via: (1) surface runoff through streams and rivers, and (2) slow underground seepage from aquifers.',
+      },
+      {
+        question: 'How does the amount of precipitation in an area affect the plants and animals that live there?',
+        explanation:
+          'Precipitation levels control soil moisture and freshwater supply, determining which plants can grow (e.g., dense forests vs. grasslands vs. desert cacti), which in turn decides the food, shelter, and animals the ecosystem can support.',
+      },
+    ],
     keyFacts: [
       {
         topic: 'Sun Energy & Gravity Drive the Cycle',
@@ -253,6 +449,34 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
       'Coupled Earth System: Atmosphere (CO₂, N₂O, H₂O vapor), Forests & Soils, Freshwater Aquifers, and Coastal Oceans.',
     biologicalNeeds:
       'Balanced carbon, nitrogen, phosphorus, and water cycles maintain stable temperatures, breathable dissolved oxygen (>6.5 mg/L), and buffered ocean pH (~8.1).',
+    narrativeSummary: [
+      'In the real world, the carbon, nitrogen, phosphorus, and water cycles never operate in isolation—changes in one cycle trigger ripple effects across all the others. When fossil fuel combustion (Carbon) and excess nitrogen fertilizer releasing nitrous oxide (Nitrogen) trap extra heat in the atmosphere, rising global temperatures speed up ocean evaporation and shrink mountain snowpacks (Water).',
+      'Heavier rainstorms combined with paved city streets and cleared forests increase fast surface runoff across farmland. That rushing runoff flushes both dissolved nitrates (NO₃⁻) from the Nitrogen cycle and eroded or detergent-sourced phosphates (PO₄³⁻) from the Phosphorus cycle straight into coastal bays.',
+      'Warm coastal waters enriched with both Nitrogen and Phosphorus trigger explosive algal blooms. When those algae die and sink, decomposers consume huge amounts of dissolved oxygen (O₂), creating hypoxic “dead zones” (<2.0 mg/L O₂) where fish and shellfish cannot survive—at the exact same time excess atmospheric CO₂ lowers ocean pH (acidification). Solving climate and ecosystem crises requires balancing all four cycles together.',
+    ],
+    keyTerms: [
+      { term: 'Greenhouse Feedback', definition: 'CO₂ and N₂O trap heat, raising air temperatures, boosting evaporation, and melting alpine snowpack.' },
+      { term: 'Ocean Acidification', definition: 'Excess atmospheric CO₂ dissolving into seawater to form carbonic acid (H₂CO₃), dropping pH.' },
+      { term: 'Coupled Nutrient Flush', definition: 'Storm surface runoff carrying agricultural NO₃⁻ and PO₄³⁻ simultaneously into coastal bays.' },
+      { term: 'Eutrophication & Hypoxia', definition: 'Nutrient-fueled algal blooms dying and decomposing, stripping dissolved O₂ below healthy levels.' },
+    ],
+    studyQuestions: [
+      {
+        question: 'How do changes in the Carbon cycle alter the Water cycle and Oceans?',
+        explanation:
+          'Higher CO₂ warms the atmosphere, accelerating evaporation, melting mountain snowpack earlier, and intensifying storm runoff—while excess CO₂ dissolving into seawater forms carbonic acid and lowers ocean pH.',
+      },
+      {
+        question: 'How do the Water, Nitrogen, and Phosphorus cycles combine to create coastal dead zones?',
+        explanation:
+          'Heavy surface runoff (Water) washes excess nitrates (Nitrogen) and phosphates (Phosphorus) into warmer coastal bays, sparking massive algal blooms whose decomposition strips dissolved oxygen from the water.',
+      },
+      {
+        question: 'Which combined practices best restore Ecosystem Health across all four cycles?',
+        explanation:
+          'Cutting fossil fuel combustion, restoring forests and prairie grasslands, protecting riparian wetlands and soil buffers, limiting impervious pavement, and reducing synthetic fertilizer and wastewater phosphates.',
+      },
+    ],
     keyFacts: [
       {
         topic: 'Greenhouse Warming & Snowmelt',

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, Mountain, Eye, EyeOff, Route, Sun } from 'lucide-react';
+import { BookOpen, Info, Mountain, Eye, EyeOff, Route, Sun } from 'lucide-react';
 import { LEARNING_MODULES } from '../simulation/engine';
 import { MODULE_MAP_CONFIGS } from '../simulation/modulesMap';
 import { DynamicSceneEffects } from './DynamicSceneEffects';
+import { NodeInfoModal } from './NodeInfoModal';
 import type {
   LearningModuleId,
   SimulationMetrics,
@@ -245,11 +246,13 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
 }) => {
   const [backdropError, setBackdropError] = useState(false);
   const [activePathwayId, setActivePathwayId] = useState<string | null>(null);
+  const [inspectedModalNodeId, setInspectedModalNodeId] = useState<string | null>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     setBackdropError(false);
     setActivePathwayId(null);
+    setInspectedModalNodeId(null);
   }, [activeModule]);
 
   useEffect(() => {
@@ -267,6 +270,11 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
 
   const selectedNode =
     mapConfig.nodes.find((n) => n.id === selectedNodeId) ?? mapConfig.nodes[0];
+
+  const inspectedModalNode =
+    inspectedModalNodeId
+      ? mapConfig.nodes.find((n) => n.id === inspectedModalNodeId) ?? null
+      : null;
 
   const inspectedPathway =
     mapConfig.pathways.find((p) => p.id === activePathwayId) ?? null;
@@ -301,7 +309,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
               className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               <BookOpen className="w-3.5 h-3.5 text-sky-700" />
-              <span>Cycle Guide</span>
+              <span>Cycle Summary</span>
             </button>
           )}
 
@@ -539,35 +547,62 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
             );
           })}
 
-        {/* Crisp Edge-Safe Reservoir Hotspot Cards */}
+        {/* Crisp Edge-Safe Reservoir Nodes with Clickable Info-Hotspots */}
         {mapConfig.nodes.map((node) => {
           const isSelected = node.id === selectedNode.id;
           return (
-            <button
+            <div
               key={node.id}
-              type="button"
-              onClick={() => onSelectNode(node.id)}
               style={{
-                left: `clamp(92px, ${node.xPercent}%, calc(100% - 92px))`,
+                left: `clamp(96px, ${node.xPercent}%, calc(100% - 96px))`,
                 top: `clamp(40px, ${node.yPercent}%, calc(100% - 32px))`,
               }}
-              className={`-translate-x-1/2 -translate-y-1/2 absolute px-2.5 py-1 rounded-md text-left transition-all cursor-pointer whitespace-nowrap shadow-md border-2 ${
+              className={`-translate-x-1/2 -translate-y-1/2 absolute flex items-center gap-1 rounded-md shadow-md border-2 transition-all whitespace-nowrap ${
                 isSelected
                   ? 'bg-slate-950 text-white border-sky-300 ring-2 ring-sky-400/70 scale-105 z-30'
                   : 'bg-white/95 text-slate-950 border-slate-800/85 hover:bg-white hover:scale-105 z-20'
               }`}
             >
-              <div className="text-xs sm:text-[13px] font-bold leading-tight">{node.label}</div>
-              {showDescriptors && (
-                <div
-                  className={`text-[10.5px] sm:text-[11px] font-mono font-semibold leading-tight ${
-                    isSelected ? 'text-sky-300' : 'text-slate-600'
-                  }`}
-                >
-                  {node.chemicalForm}
-                </div>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (isSelected) {
+                    setInspectedModalNodeId(node.id);
+                  } else {
+                    onSelectNode(node.id);
+                  }
+                }}
+                className="pl-2.5 pr-1 py-1 text-left cursor-pointer rounded-l-md"
+              >
+                <div className="text-xs sm:text-[13px] font-bold leading-tight">{node.label}</div>
+                {showDescriptors && (
+                  <div
+                    className={`text-[10.5px] sm:text-[11px] font-mono font-semibold leading-tight ${
+                      isSelected ? 'text-sky-300' : 'text-slate-600'
+                    }`}
+                  >
+                    {node.chemicalForm}
+                  </div>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onSelectNode(node.id);
+                  setInspectedModalNodeId(node.id);
+                }}
+                aria-label={`Inspect biogeochemical processes at ${node.label}`}
+                title={`Info hotspot: view ${node.label} processes`}
+                className={`mr-1.5 w-5 h-5 rounded-full inline-flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
+                  isSelected
+                    ? 'bg-sky-500 text-white hover:bg-sky-400'
+                    : 'bg-sky-100 text-sky-800 hover:bg-sky-600 hover:text-white'
+                }`}
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+            </div>
           );
         })}
 
@@ -663,9 +698,41 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                 </span>
               </div>
             )}
+            <div className="flex items-center gap-2 shrink-0">
+              {!inspectedPathway && (
+                <button
+                  type="button"
+                  onClick={() => setInspectedModalNodeId(selectedNode.id)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-800 hover:text-sky-800 whitespace-nowrap cursor-pointer"
+                >
+                  <Info className="w-3.5 h-3.5 text-sky-700" />
+                  <span>Node Details</span>
+                </button>
+              )}
+              {onOpenGuide && (
+                <button
+                  type="button"
+                  onClick={onOpenGuide}
+                  className="text-xs font-semibold text-sky-700 hover:text-sky-900 whitespace-nowrap cursor-pointer"
+                >
+                  Full Summary →
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
+
+      <NodeInfoModal
+        isOpen={Boolean(inspectedModalNode)}
+        onClose={() => setInspectedModalNodeId(null)}
+        activeModule={activeModule}
+        node={inspectedModalNode}
+        pathways={mapConfig.pathways}
+        metrics={metrics}
+        variables={variables}
+        onOpenCycleSummary={onOpenGuide}
+      />
     </div>
   );
 };
