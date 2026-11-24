@@ -5,6 +5,7 @@ import {
   buildCSVReport,
   buildMarkdownLabReport,
 } from '../simulation/engine';
+import { SCENARIO_ES, type Language } from '../i18n/translations';
 import type {
   ScenarioId,
   SimulationMetrics,
@@ -21,6 +22,7 @@ interface ExportModalProps {
   variables: SimulationVariables;
   series: SimulationMetrics[];
   currentMetrics: SimulationMetrics;
+  language: Language;
 }
 
 function triggerDownload(filename: string, content: string, mimeType: string) {
@@ -45,12 +47,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   variables,
   series,
   currentMetrics,
+  language,
 }) => {
   const [copiedMd, setCopiedMd] = useState(false);
 
   if (!isOpen) return null;
 
+  const isEs = language === 'es';
   const scenario = SCENARIO_PRESETS[scenarioId];
+  const scenarioName = isEs ? SCENARIO_ES[scenarioId].name : scenario.name;
   const slug = groupName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const markdownText = buildMarkdownLabReport(
     groupName,
@@ -105,16 +110,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <div>
             <h2 id="export-modal-title" className="text-base font-semibold text-slate-900">
-              Export Simulation Report & Data
+              {isEs ? 'Exportar Reporte y Datos de Simulación' : 'Export Simulation Report & Data'}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              {groupName} · {scenario.name} · Year {currentMetrics.year}
+              {groupName} · {scenarioName} · {isEs ? 'Año' : 'Year'} {currentMetrics.year}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close export modal"
+            aria-label={isEs ? 'Cerrar exportación' : 'Close export modal'}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -130,13 +135,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             >
               <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
               <div>
-                <div className="text-sm font-semibold text-slate-900">CSV Time-Series</div>
+                <div className="text-sm font-semibold text-slate-900">
+                  {isEs ? 'Serie Temporal CSV' : 'CSV Time-Series'}
+                </div>
                 <div className="text-xs text-slate-500 mt-0.5">
-                  100-year dataset for Excel or Google Sheets
+                  {isEs
+                    ? 'Datos de 100 años para Excel o Google Sheets'
+                    : '100-year dataset for Excel or Google Sheets'}
                 </div>
               </div>
               <span className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 mt-1">
-                <Download className="w-3.5 h-3.5" /> Download .csv
+                <Download className="w-3.5 h-3.5" /> {isEs ? 'Descargar .csv' : 'Download .csv'}
               </span>
             </button>
 
@@ -147,13 +156,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             >
               <FileJson className="w-5 h-5 text-amber-600" />
               <div>
-                <div className="text-sm font-semibold text-slate-900">JSON Snapshot</div>
+                <div className="text-sm font-semibold text-slate-900">
+                  {isEs ? 'Captura JSON' : 'JSON Snapshot'}
+                </div>
                 <div className="text-xs text-slate-500 mt-0.5">
-                  Full parameter config & computed fluxes
+                  {isEs
+                    ? 'Parámetros completos y flujos calculados'
+                    : 'Full parameter config & computed fluxes'}
                 </div>
               </div>
               <span className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 mt-1">
-                <Download className="w-3.5 h-3.5" /> Download .json
+                <Download className="w-3.5 h-3.5" /> {isEs ? 'Descargar .json' : 'Download .json'}
               </span>
             </button>
 
@@ -164,13 +177,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             >
               <FileText className="w-5 h-5 text-sky-600" />
               <div>
-                <div className="text-sm font-semibold text-slate-900">Lab Report (.md)</div>
+                <div className="text-sm font-semibold text-slate-900">
+                  {isEs ? 'Reporte Lab (.md)' : 'Lab Report (.md)'}
+                </div>
                 <div className="text-xs text-slate-500 mt-0.5">
-                  Structured summary & analysis prompts
+                  {isEs
+                    ? 'Resumen estructurado y guía de análisis'
+                    : 'Structured summary & analysis prompts'}
                 </div>
               </div>
               <span className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 mt-1">
-                <Download className="w-3.5 h-3.5" /> Download .md
+                <Download className="w-3.5 h-3.5" /> {isEs ? 'Descargar .md' : 'Download .md'}
               </span>
             </button>
           </div>
@@ -178,7 +195,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-700">
-                Lab Report Preview
+                {isEs ? 'Vista Previa del Reporte' : 'Lab Report Preview'}
               </span>
               <button
                 type="button"
@@ -186,7 +203,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 cursor-pointer"
               >
                 {copiedMd ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedMd ? 'Copied to Clipboard' : 'Copy Report Text'}</span>
+                <span>
+                  {copiedMd
+                    ? isEs
+                      ? 'Copiado al Portapapeles'
+                      : 'Copied to Clipboard'
+                    : isEs
+                      ? 'Copiar Texto del Reporte'
+                      : 'Copy Report Text'}
+                </span>
               </button>
             </div>
             <pre className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700 max-h-56 overflow-y-auto whitespace-pre-wrap">

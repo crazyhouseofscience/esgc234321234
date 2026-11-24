@@ -2,6 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { BookOpen, Info, Mountain, Eye, EyeOff, Route, Sun } from 'lucide-react';
 import { LEARNING_MODULES } from '../simulation/engine';
 import { MODULE_MAP_CONFIGS } from '../simulation/modulesMap';
+import {
+  MODULE_ES,
+  NODE_ES,
+  PATHWAY_ES,
+  getLiveSceneCaptionText,
+  translateRateText,
+  type Language,
+} from '../i18n/translations';
 import { DynamicSceneEffects } from './DynamicSceneEffects';
 import { NodeInfoModal } from './NodeInfoModal';
 import type {
@@ -19,6 +27,7 @@ interface WatershedStageProps {
   showDescriptors: boolean;
   onToggleDescriptors: () => void;
   onOpenGuide?: () => void;
+  language: Language;
 }
 
 interface PhotographicZoneLayer {
@@ -243,6 +252,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
   showDescriptors,
   onToggleDescriptors,
   onOpenGuide,
+  language,
 }) => {
   const [backdropError, setBackdropError] = useState(false);
   const [activePathwayId, setActivePathwayId] = useState<string | null>(null);
@@ -264,8 +274,10 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
     return () => mq.removeEventListener('change', listener);
   }, []);
 
+  const isEs = language === 'es';
   const moduleMeta =
     LEARNING_MODULES.find((m) => m.id === activeModule) ?? LEARNING_MODULES[0];
+  const modEs = MODULE_ES[activeModule];
   const mapConfig = MODULE_MAP_CONFIGS[activeModule];
 
   const selectedNode =
@@ -280,7 +292,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
     mapConfig.pathways.find((p) => p.id === activePathwayId) ?? null;
 
   const zoneLayers = getPhotographicZones(activeModule, metrics, variables);
-  const liveSceneCaption = getLiveSceneCaption(activeModule, metrics, variables);
+  const liveSceneCaption = getLiveSceneCaptionText(activeModule, metrics, variables, language);
 
   const durationSeconds = (rateNorm: number) => {
     const clamped = Math.max(0.6, Math.min(5.0, 1.15 / Math.max(0.2, rateNorm)));
@@ -292,11 +304,11 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
       {/* Slim Single-Row Stage Header */}
       <div className="flex items-center justify-between gap-2 px-3 py-1.5 border-b border-slate-200 bg-slate-50/90 shrink-0">
         <div className="min-w-0 flex-1 text-sm font-bold text-slate-950 truncate">
-          {moduleMeta.step}. {moduleMeta.title}
+          {moduleMeta.step}. {isEs ? modEs.title : moduleMeta.title}
           {showDescriptors && (
             <span className="hidden xl:inline font-medium text-xs text-slate-600">
               {' '}
-              — {moduleMeta.coreQuestion}
+              — {isEs ? modEs.coreQuestion : moduleMeta.coreQuestion}
             </span>
           )}
         </div>
@@ -309,7 +321,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
               className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               <BookOpen className="w-3.5 h-3.5 text-sky-700" />
-              <span>Cycle Summary</span>
+              <span>{isEs ? 'Guía del Ciclo' : 'Cycle Guide'}</span>
             </button>
           )}
 
@@ -323,7 +335,11 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
             }`}
           >
             {showDescriptors ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-            <span>Labels: {showDescriptors ? 'On' : 'Off'}</span>
+            <span>
+              {isEs
+                ? `Etiquetas: ${showDescriptors ? 'Sí' : 'No'}`
+                : `Labels: ${showDescriptors ? 'On' : 'Off'}`}
+            </span>
           </button>
         </div>
       </div>
@@ -362,7 +378,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
           <div className="w-full h-full bg-gradient-to-b from-sky-200 via-emerald-100 to-slate-800 flex items-center justify-center">
             <div className="text-center text-slate-700">
               <Mountain className="w-10 h-10 mx-auto mb-2 opacity-60" />
-              <p className="text-sm font-medium">{moduleMeta.title} Map</p>
+              <p className="text-sm font-medium">{isEs ? modEs.title : moduleMeta.title}</p>
             </div>
           </div>
         )}
@@ -377,7 +393,8 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
 
         {/* Compact Top-Left Live Visual State Pill */}
         <div className="absolute left-2.5 top-2 px-2.5 py-1 rounded-md bg-slate-950/85 border border-white/20 text-slate-100 text-[11px] font-semibold shadow-md pointer-events-none z-20 backdrop-blur-xs">
-          Visual State: <span className="text-sky-300">{liveSceneCaption}</span>
+          {isEs ? 'Estado Visual:' : 'Visual State:'}{' '}
+          <span className="text-sky-300">{liveSceneCaption}</span>
         </div>
 
         {/* High-Contrast SVG Directional Pathways & Traveling Molecule Beads */}
@@ -505,6 +522,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
             const isDormant = intensity <= 0.035;
             const xPct = (p.labelX / 10).toFixed(1);
             const yPct = (p.labelY / 5.62).toFixed(1);
+            const pTr = isEs ? PATHWAY_ES[p.id] : undefined;
 
             return (
               <button
@@ -531,7 +549,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                     style={{ backgroundColor: p.particleColor }}
                   />
                   <span>
-                    {p.stepNum}. {p.processName}
+                    {p.stepNum}. {pTr?.processName ?? p.processName}
                   </span>
                 </div>
                 {isSelected && (
@@ -539,8 +557,9 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                     className="text-[10.5px] font-mono font-semibold leading-tight mt-0.5 pl-3.5"
                     style={{ color: p.particleColor }}
                   >
-                    {p.fromLabel} {p.bidirectional ? '⇌' : '→'} {p.toLabel} ·{' '}
-                    {p.getRateText(metrics, variables)}
+                    {pTr?.fromLabel ?? p.fromLabel} {p.bidirectional ? '⇌' : '→'}{' '}
+                    {pTr?.toLabel ?? p.toLabel} ·{' '}
+                    {translateRateText(p.getRateText(metrics, variables), language)}
                   </div>
                 )}
               </button>
@@ -550,6 +569,10 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
         {/* Crisp Edge-Safe Reservoir Nodes with Clickable Info-Hotspots */}
         {mapConfig.nodes.map((node) => {
           const isSelected = node.id === selectedNode.id;
+          const nodeTr = isEs ? NODE_ES[node.id] : undefined;
+          const nodeLabel = nodeTr?.label ?? node.label;
+          const nodeChem = nodeTr?.chemicalForm ?? node.chemicalForm;
+
           return (
             <div
               key={node.id}
@@ -574,14 +597,14 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                 }}
                 className="pl-2.5 pr-1 py-1 text-left cursor-pointer rounded-l-md"
               >
-                <div className="text-xs sm:text-[13px] font-bold leading-tight">{node.label}</div>
+                <div className="text-xs sm:text-[13px] font-bold leading-tight">{nodeLabel}</div>
                 {showDescriptors && (
                   <div
                     className={`text-[10.5px] sm:text-[11px] font-mono font-semibold leading-tight ${
                       isSelected ? 'text-sky-300' : 'text-slate-600'
                     }`}
                   >
-                    {node.chemicalForm}
+                    {nodeChem}
                   </div>
                 )}
               </button>
@@ -592,8 +615,16 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                   onSelectNode(node.id);
                   setInspectedModalNodeId(node.id);
                 }}
-                aria-label={`Inspect biogeochemical processes at ${node.label}`}
-                title={`Info hotspot: view ${node.label} processes`}
+                aria-label={
+                  isEs
+                    ? `Inspeccionar procesos en ${nodeLabel}`
+                    : `Inspect biogeochemical processes at ${nodeLabel}`
+                }
+                title={
+                  isEs
+                    ? `Ver procesos biogeoquímicos en ${nodeLabel}`
+                    : `Info hotspot: view ${nodeLabel} processes`
+                }
                 className={`mr-1.5 w-5 h-5 rounded-full inline-flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
                   isSelected
                     ? 'bg-sky-500 text-white hover:bg-sky-400'
@@ -608,22 +639,30 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
 
         {showDescriptors && activeModule === 'phosphorus' && (
           <div className="absolute right-2.5 top-2 px-2.5 py-1 rounded-md bg-slate-950/90 border border-violet-400 text-violet-100 text-[11px] font-semibold shadow-md z-20">
-            No Gas Phase — Rock → Soil → Life → Ocean → Sediment
+            {isEs
+              ? 'Sin Fase Gaseosa — Roca → Suelo → Vida → Océano → Sedimento'
+              : 'No Gas Phase — Rock → Soil → Life → Ocean → Sediment'}
           </div>
         )}
 
         {showDescriptors && activeModule === 'water' && (
           <div className="absolute right-2.5 top-2 px-2.5 py-1 rounded-md bg-slate-950/90 border border-amber-300 text-amber-100 text-[11px] font-semibold flex items-center gap-1.5 shadow-md z-20">
             <Sun className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-            <span>Sun drives evaporation · Gravity pulls rain/snow</span>
+            <span>
+              {isEs
+                ? 'El Sol evapora · La gravedad atrae lluvia/nieve'
+                : 'Sun drives evaporation · Gravity pulls rain/snow'}
+            </span>
           </div>
         )}
 
         {activeModule === 'climate' && metrics.algalBloomIndex >= 45 && (
           <div className="absolute right-2.5 top-2 px-2.5 py-1 rounded-md bg-rose-950/95 border border-rose-400 text-rose-100 text-[11px] font-semibold flex items-center gap-2 shadow-md z-20">
-            <span className="font-mono font-bold text-rose-300">▲ HYPOXIA ALERT</span>
+            <span className="font-mono font-bold text-rose-300">
+              {isEs ? '▲ ALERTA DE HIPOXIA' : '▲ HYPOXIA ALERT'}
+            </span>
             <span className="font-mono tabular-nums">
-              DO: {metrics.dissolvedOxygen.toFixed(2)} mg/L
+              {isEs ? 'O₂' : 'DO'}: {metrics.dissolvedOxygen.toFixed(2)} mg/L
             </span>
           </div>
         )}
@@ -634,12 +673,13 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-700 mr-1 shrink-0">
             <Route className="w-3.5 h-3.5 text-slate-500" />
-            Routes:
+            {isEs ? 'Rutas:' : 'Routes:'}
           </span>
           {mapConfig.pathways.map((p) => {
             const selected = activePathwayId === p.id;
             const intensity = Math.max(0, Math.min(1.5, p.getRateNorm(metrics, variables)));
             const isDormant = intensity <= 0.035;
+            const pTr = isEs ? PATHWAY_ES[p.id] : undefined;
             return (
               <button
                 key={p.id}
@@ -649,7 +689,9 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                 onClick={() =>
                   setActivePathwayId((prev) => (prev === p.id ? null : p.id))
                 }
-                title={`${p.fromLabel} ${p.bidirectional ? '⇌' : '→'} ${p.toLabel} (${p.getRateText(metrics, variables)})`}
+                title={`${pTr?.fromLabel ?? p.fromLabel} ${p.bidirectional ? '⇌' : '→'} ${
+                  pTr?.toLabel ?? p.toLabel
+                } (${translateRateText(p.getRateText(metrics, variables), language)})`}
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                   selected
                     ? 'bg-slate-900 text-white border-slate-900'
@@ -666,7 +708,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                   }}
                 />
                 <span>
-                  {p.stepNum}. {p.processName}
+                  {p.stepNum}. {pTr?.processName ?? p.processName}
                 </span>
               </button>
             );
@@ -678,23 +720,45 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
             {inspectedPathway ? (
               <div className="truncate sm:whitespace-normal">
                 <strong className="text-slate-950">
-                  {inspectedPathway.stepNum}. {inspectedPathway.processName} ({inspectedPathway.fromLabel}{' '}
-                  {inspectedPathway.bidirectional ? '⇌' : '→'} {inspectedPathway.toLabel} ·{' '}
-                  {inspectedPathway.getRateText(metrics, variables)}):
+                  {inspectedPathway.stepNum}.{' '}
+                  {(isEs ? PATHWAY_ES[inspectedPathway.id]?.processName : undefined) ??
+                    inspectedPathway.processName}{' '}
+                  (
+                  {(isEs ? PATHWAY_ES[inspectedPathway.id]?.fromLabel : undefined) ??
+                    inspectedPathway.fromLabel}{' '}
+                  {inspectedPathway.bidirectional ? '⇌' : '→'}{' '}
+                  {(isEs ? PATHWAY_ES[inspectedPathway.id]?.toLabel : undefined) ??
+                    inspectedPathway.toLabel}{' '}
+                  ·{' '}
+                  {translateRateText(
+                    inspectedPathway.getRateText(metrics, variables),
+                    language
+                  )}
+                  ):
                 </strong>{' '}
-                {inspectedPathway.explanation}{' '}
+                {(isEs ? PATHWAY_ES[inspectedPathway.id]?.explanation : undefined) ??
+                  inspectedPathway.explanation}{' '}
                 <span className="font-mono font-semibold text-slate-700">
-                  [{inspectedPathway.chemicalChange}]
+                  [
+                  {(isEs ? PATHWAY_ES[inspectedPathway.id]?.chemicalChange : undefined) ??
+                    inspectedPathway.chemicalChange}
+                  ]
                 </span>
               </div>
             ) : (
               <div className="truncate sm:whitespace-normal">
                 <strong className="text-slate-950">
-                  {selectedNode.label} ({selectedNode.chemicalForm}):
+                  {(isEs ? NODE_ES[selectedNode.id]?.label : undefined) ?? selectedNode.label} (
+                  {(isEs ? NODE_ES[selectedNode.id]?.chemicalForm : undefined) ??
+                    selectedNode.chemicalForm}
+                  ):
                 </strong>{' '}
-                {selectedNode.summary}{' '}
+                {(isEs ? NODE_ES[selectedNode.id]?.summary : undefined) ?? selectedNode.summary}{' '}
                 <span className="font-mono font-semibold text-slate-700">
-                  [{selectedNode.equation}]
+                  [
+                  {(isEs ? NODE_ES[selectedNode.id]?.equation : undefined) ??
+                    selectedNode.equation}
+                  ]
                 </span>
               </div>
             )}
@@ -706,7 +770,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                   className="inline-flex items-center gap-1 text-xs font-semibold text-slate-800 hover:text-sky-800 whitespace-nowrap cursor-pointer"
                 >
                   <Info className="w-3.5 h-3.5 text-sky-700" />
-                  <span>Node Details</span>
+                  <span>{isEs ? 'Detalles del Nodo' : 'Node Details'}</span>
                 </button>
               )}
               {onOpenGuide && (
@@ -715,7 +779,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                   onClick={onOpenGuide}
                   className="text-xs font-semibold text-sky-700 hover:text-sky-900 whitespace-nowrap cursor-pointer"
                 >
-                  Full Summary →
+                  {isEs ? 'Guía Completa →' : 'Full Guide →'}
                 </button>
               )}
             </div>
@@ -732,6 +796,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
         metrics={metrics}
         variables={variables}
         onOpenCycleSummary={onOpenGuide}
+        language={language}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import {
   SCENARIO_PRESETS,
   simulateTimeSeries,
 } from '../simulation/engine';
+import { MODULE_ES, type Language } from '../i18n/translations';
 import type { LearningModuleId, SimulationMetrics } from '../types/simulation';
 
 interface TrendAnalyticsProps {
@@ -12,12 +13,14 @@ interface TrendAnalyticsProps {
   series: SimulationMetrics[];
   currentYear: number;
   onSelectYear: (year: number) => void;
+  language: Language;
 }
 
 interface ChannelDef {
   id: string;
   module: LearningModuleId;
   label: string;
+  labelEs: string;
   unit: string;
   color: string;
   minDomain: number;
@@ -30,6 +33,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'co2',
     module: 'carbon',
     label: 'Atmospheric CO₂',
+    labelEs: 'CO₂ Atmosférico',
     unit: 'ppm',
     color: '#d97706',
     minDomain: 250,
@@ -40,6 +44,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'oceanPH',
     module: 'carbon',
     label: 'Ocean Surface pH',
+    labelEs: 'pH Superficial Mar',
     unit: 'pH',
     color: '#b45309',
     minDomain: 7.7,
@@ -50,6 +55,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'nitrate',
     module: 'nitrogen',
     label: 'Aquatic Nitrate',
+    labelEs: 'Nitrato Acuático',
     unit: 'mg/L',
     color: '#059669',
     minDomain: 0,
@@ -60,6 +66,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'n2o',
     module: 'nitrogen',
     label: 'Nitrous Oxide Flux',
+    labelEs: 'Flujo Óxido Nitroso',
     unit: 'Mt/yr',
     color: '#10b981',
     minDomain: 0,
@@ -70,6 +77,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'phosphate',
     module: 'phosphorus',
     label: 'Reactive PO₄³⁻',
+    labelEs: 'PO₄³⁻ Reactivo',
     unit: 'ug/L',
     color: '#7c3aed',
     minDomain: 0,
@@ -80,6 +88,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'bloom',
     module: 'climate',
     label: 'Algal Bloom Index',
+    labelEs: 'Índice Algal',
     unit: '/100',
     color: '#9333ea',
     minDomain: 0,
@@ -90,6 +99,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'oxygen',
     module: 'climate',
     label: 'Dissolved O₂',
+    labelEs: 'O₂ Disuelto',
     unit: 'mg/L',
     color: '#0284c7',
     minDomain: 0,
@@ -100,6 +110,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'groundwater',
     module: 'water',
     label: 'Aquifer Capacity',
+    labelEs: 'Capacidad Acuífero',
     unit: '%',
     color: '#0369a1',
     minDomain: 0,
@@ -110,6 +121,7 @@ const CHANNELS: ChannelDef[] = [
     id: 'snowpack',
     module: 'water',
     label: 'Snowpack Volume',
+    labelEs: 'Volumen de Nieve',
     unit: '%',
     color: '#38bdf8',
     minDomain: 0,
@@ -132,6 +144,7 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
   series,
   currentYear,
   onSelectYear,
+  language,
 }) => {
   const [visibleChannels, setVisibleChannels] = useState<Record<string, boolean>>(() =>
     getDefaultChannelsForModule(activeModule)
@@ -141,6 +154,8 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
   useEffect(() => {
     setVisibleChannels(getDefaultChannelsForModule(activeModule));
   }, [activeModule]);
+
+  const isEs = language === 'es';
 
   const baselineSeries = useMemo(
     () => simulateTimeSeries(SCENARIO_PRESETS.preindustrial.variables, 100, 5),
@@ -154,6 +169,7 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
 
   const moduleMeta =
     LEARNING_MODULES.find((m) => m.id === activeModule) ?? LEARNING_MODULES[0];
+  const modTitle = isEs ? MODULE_ES[activeModule].title : moduleMeta.title;
 
   const moduleChannels =
     activeModule === 'climate'
@@ -184,10 +200,10 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
 
   // Radar Chart math (primarily for Climate Impact)
   const radarAxes = [
-    { label: 'Climate Stability', get: (m: SimulationMetrics) => m.climateStability },
-    { label: 'Water Quality', get: (m: SimulationMetrics) => m.waterQualityIndex },
-    { label: 'Nutrient Balance', get: (m: SimulationMetrics) => m.nutrientBalance },
-    { label: 'Biodiversity', get: (m: SimulationMetrics) => m.biodiversityHealth },
+    { label: isEs ? 'Estab. Climática' : 'Climate Stability', get: (m: SimulationMetrics) => m.climateStability },
+    { label: isEs ? 'Calidad de Agua' : 'Water Quality', get: (m: SimulationMetrics) => m.waterQualityIndex },
+    { label: isEs ? 'Balance Nutrientes' : 'Nutrient Balance', get: (m: SimulationMetrics) => m.nutrientBalance },
+    { label: isEs ? 'Biodiversidad' : 'Biodiversity', get: (m: SimulationMetrics) => m.biodiversityHealth },
   ];
 
   const radarPoint = (axisIdx: number, pct: number, radius = 92) => {
@@ -212,10 +228,13 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">
-            {moduleMeta.step}. {moduleMeta.title} — Trend Analytics
+            {moduleMeta.step}. {modTitle} —{' '}
+            {isEs ? 'Análisis de Tendencias' : 'Trend Analytics'}
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Inspect 100-year trajectories for this module or switch modules to compare individual cycles.
+            {isEs
+              ? 'Inspecciona trayectorias a 100 años para este módulo o cambia de módulo para comparar ciclos individuales.'
+              : 'Inspect 100-year trajectories for this module or switch modules to compare individual cycles.'}
           </p>
         </div>
 
@@ -232,7 +251,7 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {m.shortTitle}
+              {isEs ? MODULE_ES[m.id].shortTitle : m.shortTitle}
             </button>
           ))}
         </div>
@@ -243,7 +262,9 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
         <div className="xl:col-span-8 border border-slate-200 bg-white rounded-xl p-4 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-sm font-semibold text-slate-900">
-              100-Year Trajectory (Year {inspectedMetrics.year} Selected)
+              {isEs
+                ? `Trayectoria a 100 Años (Año ${inspectedMetrics.year} Seleccionado)`
+                : `100-Year Trajectory (Year ${inspectedMetrics.year} Selected)`}
             </h3>
 
             <div className="flex flex-wrap items-center gap-1.5">
@@ -264,7 +285,7 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
                       className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: ch.color }}
                     />
-                    <span>{ch.label}</span>
+                    <span>{isEs ? ch.labelEs : ch.label}</span>
                   </button>
                 );
               })}
@@ -389,7 +410,7 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
                       className="w-2 h-2 rounded-full shrink-0"
                       style={{ backgroundColor: ch.color }}
                     />
-                    <span className="truncate">{ch.label}</span>
+                    <span className="truncate">{isEs ? ch.labelEs : ch.label}</span>
                   </div>
                   <div className="mt-0.5 flex items-baseline gap-1">
                     <span className="text-sm font-semibold font-mono tabular-nums text-slate-900">
@@ -397,7 +418,9 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
                         ch.id === 'oceanPH' ? 3 : ch.id === 'oxygen' || ch.id === 'nitrate' ? 2 : 1
                       )}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-500">{ch.unit}</span>
+                    <span className="text-[10px] font-mono text-slate-500">
+                      {isEs ? ch.unit.replace('/yr', '/año') : ch.unit}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -408,10 +431,12 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
         <div className="xl:col-span-4 border border-slate-200 bg-white rounded-xl p-4 flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Ecosystem Stability Radar
+              {isEs ? 'Radar de Estabilidad del Ecosistema' : 'Ecosystem Stability Radar'}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Current state (Yr {inspectedMetrics.year}) vs. 1750 Baseline
+              {isEs
+                ? `Estado actual (Año ${inspectedMetrics.year}) vs. Base 1750`
+                : `Current state (Yr ${inspectedMetrics.year}) vs. 1750 Baseline`}
             </p>
           </div>
 
@@ -478,13 +503,17 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
 
           <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
             <div className="px-2.5 py-2 rounded-lg bg-slate-50">
-              <div className="text-[11px] text-slate-500">Composite Health</div>
+              <div className="text-[11px] text-slate-500">
+                {isEs ? 'Salud Compuesta' : 'Composite Health'}
+              </div>
               <div className="font-mono font-semibold tabular-nums text-base text-slate-900">
                 {inspectedMetrics.ecosystemHealth.toFixed(1)}%
               </div>
             </div>
             <div className="px-2.5 py-2 rounded-lg bg-slate-50">
-              <div className="text-[11px] text-slate-500">System State</div>
+              <div className="text-[11px] text-slate-500">
+                {isEs ? 'Estado del Sistema' : 'System State'}
+              </div>
               <div
                 className={`font-mono font-semibold text-xs mt-1 ${
                   inspectedMetrics.status === 'NOMINAL'
@@ -495,10 +524,16 @@ export const TrendAnalytics: React.FC<TrendAnalyticsProps> = ({
                 }`}
               >
                 {inspectedMetrics.status === 'NOMINAL'
-                  ? '● NOMINAL'
+                  ? isEs
+                    ? '● ÓPTIMO'
+                    : '● NOMINAL'
                   : inspectedMetrics.status === 'STRESSED'
-                    ? '▲ STRESSED'
-                    : '✖ CRITICAL'}
+                    ? isEs
+                      ? '▲ ESTRESADO'
+                      : '▲ STRESSED'
+                    : isEs
+                      ? '✖ CRÍTICO'
+                      : '✖ CRITICAL'}
               </div>
             </div>
           </div>

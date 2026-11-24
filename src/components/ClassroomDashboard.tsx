@@ -9,6 +9,7 @@ import {
   Radio,
 } from 'lucide-react';
 import { CHALLENGE_GOALS, SCENARIO_PRESETS } from '../simulation/engine';
+import { CHALLENGE_ES, SCENARIO_ES, type Language } from '../i18n/translations';
 import type { ClassroomRoomState, GroupSnapshot } from '../types/simulation';
 
 interface ClassroomDashboardProps {
@@ -25,6 +26,7 @@ interface ClassroomDashboardProps {
   onSaveMilestone: () => void;
   onDeleteMilestone: (milestoneId: string) => void;
   onLoadGroupVariables: (snapshot: GroupSnapshot) => void;
+  language: Language;
 }
 
 export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
@@ -41,9 +43,11 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
   onSaveMilestone,
   onDeleteMilestone,
   onLoadGroupVariables,
+  language,
 }) => {
   const [roomInput, setRoomInput] = useState(roomCode);
   const [copiedLink, setCopiedLink] = useState(false);
+  const isEs = language === 'es';
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +89,7 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
       <div className="border border-slate-200 bg-white rounded-xl p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-end">
         <form onSubmit={handleJoinRoom} className="lg:col-span-4 space-y-1.5">
           <label htmlFor="classroom-code" className="block text-xs font-semibold text-slate-700">
-            Classroom Room Code
+            {isEs ? 'Código de Sala de Clase' : 'Classroom Room Code'}
           </label>
           <div className="flex items-center gap-2">
             <input
@@ -101,14 +105,14 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
               type="submit"
               className="px-3.5 py-2 text-xs font-medium rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
-              Join Room
+              {isEs ? 'Unirse' : 'Join Room'}
             </button>
           </div>
         </form>
 
         <div className="lg:col-span-3 space-y-1.5">
           <label htmlFor="group-name" className="block text-xs font-semibold text-slate-700">
-            Your Lab Group Name
+            {isEs ? 'Nombre de Tu Grupo' : 'Your Lab Group Name'}
           </label>
           <input
             id="group-name"
@@ -116,14 +120,14 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
             value={groupName}
             onChange={(e) => onChangeGroupName(e.target.value)}
             maxLength={48}
-            placeholder="Group A — Watershed"
+            placeholder={isEs ? 'Grupo A — Cuenca' : 'Group A — Watershed'}
             className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
         <div className="lg:col-span-3 space-y-1.5">
           <label htmlFor="student-names" className="block text-xs font-semibold text-slate-700">
-            Student Members
+            {isEs ? 'Estudiantes del Grupo' : 'Student Members'}
           </label>
           <input
             id="student-names"
@@ -147,10 +151,16 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
                 }`}
               />
               {wsStatus === 'connected'
-                ? 'Live Sync'
+                ? isEs
+                  ? 'En Vivo'
+                  : 'Live Sync'
                 : wsStatus === 'connecting'
-                  ? 'Connecting'
-                  : 'Reconnecting'}
+                  ? isEs
+                    ? 'Conectando'
+                    : 'Connecting'
+                  : isEs
+                    ? 'Reconectando'
+                    : 'Reconnecting'}
             </span>
           </div>
 
@@ -160,7 +170,15 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
             className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer whitespace-nowrap"
           >
             {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copiedLink ? 'Link Copied' : 'Copy Invite URL'}</span>
+            <span>
+              {copiedLink
+                ? isEs
+                  ? 'Enlace Copiado'
+                  : 'Link Copied'
+                : isEs
+                  ? 'Copiar Invitación'
+                  : 'Copy Invite URL'}
+            </span>
           </button>
         </div>
       </div>
@@ -171,7 +189,9 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-sky-600" />
             <h3 className="text-sm font-semibold text-slate-900">
-              Classroom Scenario Challenges ({localSnapshot.completedChallenges.length}/{CHALLENGE_GOALS.length} met by your group)
+              {isEs
+                ? `Retos de Escenario en Clase (${localSnapshot.completedChallenges.length}/${CHALLENGE_GOALS.length} logrados por tu grupo)`
+                : `Classroom Scenario Challenges (${localSnapshot.completedChallenges.length}/${CHALLENGE_GOALS.length} met by your group)`}
             </h3>
           </div>
 
@@ -181,37 +201,50 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
             className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
             <BookmarkCheck className="w-3.5 h-3.5" />
-            <span>Publish Scenario Snapshot</span>
+            <span>{isEs ? 'Publicar Captura de Escenario' : 'Publish Scenario Snapshot'}</span>
           </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {challengeStats.map((goal) => (
-            <div
-              key={goal.id}
-              className={`p-3.5 rounded-lg border ${
-                goal.localPassed
-                  ? 'border-emerald-300 bg-emerald-50/50'
-                  : 'border-slate-200 bg-slate-50/50'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-2 text-xs font-semibold">
-                <span className="text-slate-900">{goal.title}</span>
-                <span
-                  className={`font-mono shrink-0 ${
-                    goal.localPassed ? 'text-emerald-700' : 'text-slate-400'
-                  }`}
-                >
-                  {goal.localPassed ? '✓ PASS' : 'OPEN'}
-                </span>
+          {challengeStats.map((goal) => {
+            const gTr = isEs ? CHALLENGE_ES[goal.id] : undefined;
+            return (
+              <div
+                key={goal.id}
+                className={`p-3.5 rounded-lg border ${
+                  goal.localPassed
+                    ? 'border-emerald-300 bg-emerald-50/50'
+                    : 'border-slate-200 bg-slate-50/50'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 text-xs font-semibold">
+                  <span className="text-slate-900">{gTr?.title ?? goal.title}</span>
+                  <span
+                    className={`font-mono shrink-0 ${
+                      goal.localPassed ? 'text-emerald-700' : 'text-slate-400'
+                    }`}
+                  >
+                    {goal.localPassed
+                      ? isEs
+                        ? '✓ LOGRADO'
+                        : '✓ PASS'
+                      : isEs
+                        ? 'ABIERTO'
+                        : 'OPEN'}
+                  </span>
+                </div>
+                <p className="mt-1 text-[11px] font-mono text-slate-600">
+                  {gTr?.criterionText ?? goal.criterionText}
+                </p>
+                <p className="mt-2 text-[11px] text-slate-500">
+                  <strong className="font-mono tabular-nums text-slate-800">{goal.passingGroups}</strong>{' '}
+                  {isEs ? 'de' : 'of'}{' '}
+                  <span className="font-mono tabular-nums">{displayedGroups.length}</span>{' '}
+                  {isEs ? 'grupos activos logrando meta' : 'active groups passing'}
+                </p>
               </div>
-              <p className="mt-1 text-[11px] font-mono text-slate-600">{goal.criterionText}</p>
-              <p className="mt-2 text-[11px] text-slate-500">
-                <strong className="font-mono tabular-nums text-slate-800">{goal.passingGroups}</strong> of{' '}
-                <span className="font-mono tabular-nums">{displayedGroups.length}</span> active groups passing
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -222,11 +255,15 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-slate-500" />
               <h3 className="text-sm font-semibold text-slate-900">
-                Live Classroom Workspace Comparison — Room {roomCode}
+                {isEs
+                  ? `Comparación en Vivo — Sala ${roomCode}`
+                  : `Live Classroom Workspace Comparison — Room ${roomCode}`}
               </h3>
             </div>
             <span className="text-xs font-mono text-slate-500">
-              {displayedGroups.filter((g) => g.isLive).length} online · {displayedGroups.length} total
+              {displayedGroups.filter((g) => g.isLive).length}{' '}
+              {isEs ? 'en línea' : 'online'} · {displayedGroups.length}{' '}
+              {isEs ? 'total' : 'total'}
             </span>
           </div>
 
@@ -234,14 +271,14 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="py-2.5 px-4 font-semibold">Group</th>
-                  <th className="py-2.5 px-3 font-semibold">Scenario</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">Year</th>
+                  <th className="py-2.5 px-4 font-semibold">{isEs ? 'Grupo' : 'Group'}</th>
+                  <th className="py-2.5 px-3 font-semibold">{isEs ? 'Escenario' : 'Scenario'}</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">{isEs ? 'Año' : 'Year'}</th>
                   <th className="py-2.5 px-3 font-semibold text-right">CO₂ (ppm)</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">DO (mg/L)</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">Health</th>
-                  <th className="py-2.5 px-3 font-semibold">Goals</th>
-                  <th className="py-2.5 px-4 font-semibold text-right">Action</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">{isEs ? 'O₂ (mg/L)' : 'DO (mg/L)'}</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">{isEs ? 'Salud' : 'Health'}</th>
+                  <th className="py-2.5 px-3 font-semibold">{isEs ? 'Metas' : 'Goals'}</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">{isEs ? 'Acción' : 'Action'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -254,17 +291,19 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
                     >
                       <td className="py-3 px-4">
                         <div className="font-semibold text-slate-900">
-                          {grp.groupName} {isSelf ? '(You)' : ''}
+                          {grp.groupName} {isSelf ? (isEs ? '(Tú)' : '(You)') : ''}
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          {grp.studentNames || 'No members listed'} ·{' '}
+                          {grp.studentNames || (isEs ? 'Sin integrantes' : 'No members listed')} ·{' '}
                           <span className={grp.isLive ? 'text-emerald-700 font-medium' : 'text-slate-400'}>
-                            {grp.isLive ? 'Live' : 'Offline'}
+                            {grp.isLive ? (isEs ? 'En Vivo' : 'Live') : isEs ? 'Desconectado' : 'Offline'}
                           </span>
                         </div>
                       </td>
                       <td className="py-3 px-3 text-slate-700">
-                        {SCENARIO_PRESETS[grp.scenarioId]?.shortName ?? grp.scenarioId}
+                        {(isEs ? SCENARIO_ES[grp.scenarioId]?.shortName : undefined) ??
+                          SCENARIO_PRESETS[grp.scenarioId]?.shortName ??
+                          grp.scenarioId}
                       </td>
                       <td className="py-3 px-3 text-right font-mono tabular-nums text-slate-700">
                         {grp.year}
@@ -288,7 +327,7 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
                             onClick={() => onLoadGroupVariables(grp)}
                             className="px-2.5 py-1 text-[11px] font-medium rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer whitespace-nowrap"
                           >
-                            Load Model
+                            {isEs ? 'Cargar Modelo' : 'Load Model'}
                           </button>
                         )}
                       </td>
@@ -304,10 +343,12 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
         <div className="xl:col-span-4 border border-slate-200 bg-white rounded-xl p-4 space-y-4">
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Ecosystem Health Comparison
+              {isEs ? 'Comparación de Salud del Ecosistema' : 'Ecosystem Health Comparison'}
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Real-time group scores across active classroom runs
+              {isEs
+                ? 'Puntuaciones de grupos en tiempo real durante la clase'
+                : 'Real-time group scores across active classroom runs'}
             </p>
           </div>
 
@@ -328,7 +369,14 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
                       {grp.groupName}
                     </span>
                     <span className="font-mono tabular-nums text-slate-700 shrink-0">
-                      {health.toFixed(1)}% · {grp.metrics.status}
+                      {health.toFixed(1)}% ·{' '}
+                      {isEs
+                        ? grp.metrics.status === 'NOMINAL'
+                          ? 'ÓPTIMO'
+                          : grp.metrics.status === 'STRESSED'
+                            ? 'ESTRESADO'
+                            : 'CRÍTICO'
+                        : grp.metrics.status}
                     </span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
@@ -349,34 +397,51 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
         <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Published Classroom Scenario Snapshots
+              {isEs ? 'Capturas de Escenarios Publicadas' : 'Published Classroom Scenario Snapshots'}
             </h3>
             <p className="text-xs text-slate-500">
-              Groups can publish locked snapshots across different environmental scenarios to compare hypotheses side-by-side.
+              {isEs
+                ? 'Los grupos pueden publicar capturas guardadas en distintos escenarios para comparar hipótesis.'
+                : 'Groups can publish locked snapshots across different environmental scenarios to compare hypotheses side-by-side.'}
             </p>
           </div>
-          <span className="text-xs font-mono text-slate-500">{milestones.length} saved</span>
+          <span className="text-xs font-mono text-slate-500">
+            {milestones.length} {isEs ? 'guardadas' : 'saved'}
+          </span>
         </div>
 
         {milestones.length === 0 ? (
           <div className="p-8 text-center text-sm text-slate-500">
-            No scenario snapshots published in room <span className="font-mono text-slate-700">{roomCode}</span> yet. Adjust your simulation variables and click{' '}
-            <strong className="text-slate-700">Publish Scenario Snapshot</strong> to share a benchmark with the class.
+            {isEs ? (
+              <>
+                Aún no hay capturas publicadas en la sala{' '}
+                <span className="font-mono text-slate-700">{roomCode}</span>. Ajusta las variables y
+                haz clic en <strong className="text-slate-700">Publicar Captura de Escenario</strong>.
+              </>
+            ) : (
+              <>
+                No scenario snapshots published in room{' '}
+                <span className="font-mono text-slate-700">{roomCode}</span> yet. Adjust your
+                simulation variables and click{' '}
+                <strong className="text-slate-700">Publish Scenario Snapshot</strong> to share a
+                benchmark with the class.
+              </>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                 <tr>
-                  <th className="py-2.5 px-4 font-semibold">Group</th>
-                  <th className="py-2.5 px-3 font-semibold">Scenario</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">Year</th>
+                  <th className="py-2.5 px-4 font-semibold">{isEs ? 'Grupo' : 'Group'}</th>
+                  <th className="py-2.5 px-3 font-semibold">{isEs ? 'Escenario' : 'Scenario'}</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">{isEs ? 'Año' : 'Year'}</th>
                   <th className="py-2.5 px-3 font-semibold text-right">CO₂ (ppm)</th>
                   <th className="py-2.5 px-3 font-semibold text-right">NO₃⁻ (mg/L)</th>
                   <th className="py-2.5 px-3 font-semibold text-right">PO₄³⁻ (ug/L)</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">DO (mg/L)</th>
-                  <th className="py-2.5 px-3 font-semibold text-right">Health</th>
-                  <th className="py-2.5 px-4 font-semibold text-right">Actions</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">{isEs ? 'O₂ (mg/L)' : 'DO (mg/L)'}</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">{isEs ? 'Salud' : 'Health'}</th>
+                  <th className="py-2.5 px-4 font-semibold text-right">{isEs ? 'Acciones' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -392,7 +457,9 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
                       </div>
                     </td>
                     <td className="py-2.5 px-3 text-slate-700">
-                      {SCENARIO_PRESETS[m.scenarioId]?.shortName ?? m.scenarioId}
+                      {(isEs ? SCENARIO_ES[m.scenarioId]?.shortName : undefined) ??
+                        SCENARIO_PRESETS[m.scenarioId]?.shortName ??
+                        m.scenarioId}
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono tabular-nums">{m.year}</td>
                     <td className="py-2.5 px-3 text-right font-mono tabular-nums">
@@ -417,12 +484,12 @@ export const ClassroomDashboard: React.FC<ClassroomDashboardProps> = ({
                           onClick={() => onLoadGroupVariables(m)}
                           className="px-2 py-1 text-[11px] font-medium rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 cursor-pointer"
                         >
-                          Restore
+                          {isEs ? 'Restaurar' : 'Restore'}
                         </button>
                         <button
                           type="button"
                           onClick={() => onDeleteMilestone(m.id)}
-                          aria-label="Delete snapshot"
+                          aria-label={isEs ? 'Eliminar captura' : 'Delete snapshot'}
                           className="p-1 text-slate-400 hover:text-rose-600 cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

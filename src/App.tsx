@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Languages } from 'lucide-react';
 import {
   LEARNING_MODULES,
   SCENARIO_PRESETS,
   getActiveChallengeIds,
   simulateTimeSeries,
 } from './simulation/engine';
+import { MODULE_ES, type Language } from './i18n/translations';
 import { WatershedStage } from './components/WatershedStage';
 import { ControlDeck, type ControlDeckTab } from './components/ControlDeck';
 import { TrendAnalytics } from './components/TrendAnalytics';
@@ -51,112 +52,128 @@ function getDefaultNodeForModule(mod: LearningModuleId): string {
 
 function getModuleKPIs(
   mod: LearningModuleId,
-  m: SimulationMetrics
+  m: SimulationMetrics,
+  language: Language
 ): { label: string; value: string; unit: string; detail: string }[] {
+  const isEs = language === 'es';
   switch (mod) {
     case 'carbon':
       return [
         {
-          label: 'Atmospheric CO₂ Gas',
+          label: isEs ? 'Gas CO₂ Atmosférico' : 'Atmospheric CO₂ Gas',
           value: m.atmosphericCO2.toFixed(1),
           unit: 'ppm',
-          detail: `Net flux ${m.netCarbonFlux >= 0 ? '+' : ''}${m.netCarbonFlux.toFixed(1)} GtC/yr`,
+          detail: `${isEs ? 'Flujo neto' : 'Net flux'} ${m.netCarbonFlux >= 0 ? '+' : ''}${m.netCarbonFlux.toFixed(1)} ${isEs ? 'GtC/año' : 'GtC/yr'}`,
         },
         {
-          label: 'Forest & Grass Sink',
+          label: isEs ? 'Sumidero Bosques y Praderas' : 'Forest & Grass Sink',
           value: m.photosynthesisFlux.toFixed(1),
-          unit: 'GtC/yr',
-          detail: `Soil + plant C ${(m.terrestrialBiomassC + m.soilOrganicC).toFixed(0)} GtC`,
+          unit: isEs ? 'GtC/año' : 'GtC/yr',
+          detail: `${isEs ? 'C suelo + plantas' : 'Soil + plant C'} ${(m.terrestrialBiomassC + m.soilOrganicC).toFixed(0)} GtC`,
         },
         {
-          label: 'Ocean Surface pH',
+          label: isEs ? 'pH Superficial Oceánico' : 'Ocean Surface pH',
           value: m.oceanPH.toFixed(3),
           unit: 'pH',
-          detail: `Ocean uptake ${m.oceanCarbonUptake.toFixed(2)} GtC/yr`,
+          detail: `${isEs ? 'Captura oceánica' : 'Ocean uptake'} ${m.oceanCarbonUptake.toFixed(2)} ${isEs ? 'GtC/año' : 'GtC/yr'}`,
         },
       ];
     case 'nitrogen':
       return [
         {
-          label: 'Biological N₂ Fixation',
+          label: isEs ? 'Fijación Biológica de N₂' : 'Biological N₂ Fixation',
           value: m.nFixationFlux.toFixed(1),
-          unit: 'MtN/yr',
-          detail: `Soil nitrate ${m.soilNitrate.toFixed(1)} mg/kg`,
+          unit: isEs ? 'MtN/año' : 'MtN/yr',
+          detail: `${isEs ? 'Nitrato en suelo' : 'Soil nitrate'} ${m.soilNitrate.toFixed(1)} mg/kg`,
         },
         {
-          label: 'Wetland Denitrification',
+          label: isEs ? 'Desnitrificación en Humedal' : 'Wetland Denitrification',
           value: m.denitrificationFlux.toFixed(1),
-          unit: 'MtN/yr',
-          detail: `N₂O gas ${m.nitrousOxideFlux.toFixed(2)} Mt/yr`,
+          unit: isEs ? 'MtN/año' : 'MtN/yr',
+          detail: `${isEs ? 'Gas N₂O' : 'N₂O gas'} ${m.nitrousOxideFlux.toFixed(2)} ${isEs ? 'Mt/año' : 'Mt/yr'}`,
         },
         {
-          label: 'River Nitrate (NO₃⁻)',
+          label: isEs ? 'Nitrato Fluvial (NO₃⁻)' : 'River Nitrate (NO₃⁻)',
           value: m.aquaticNitrateLoad.toFixed(2),
           unit: 'mg/L',
-          detail: m.aquaticNitrateLoad > 3.0 ? 'Elevated leaching' : 'Safe threshold',
+          detail:
+            m.aquaticNitrateLoad > 3.0
+              ? isEs
+                ? 'Lixiviación elevada'
+                : 'Elevated leaching'
+              : isEs
+                ? 'Umbral seguro'
+                : 'Safe threshold',
         },
       ];
     case 'phosphorus':
       return [
         {
-          label: 'Rock & Sewage Input',
+          label: isEs ? 'Aporte Roca y Aguas Residuales' : 'Rock & Sewage Input',
           value: m.pWeatheringAndMiningFlux.toFixed(1),
-          unit: 'MtP/yr',
-          detail: `Runoff ${m.pRunoffFlux.toFixed(2)} MtP/yr`,
+          unit: isEs ? 'MtP/año' : 'MtP/yr',
+          detail: `${isEs ? 'Escorrentía' : 'Runoff'} ${m.pRunoffFlux.toFixed(2)} ${isEs ? 'MtP/año' : 'MtP/yr'}`,
         },
         {
-          label: 'Reactive PO₄³⁻',
+          label: isEs ? 'Fosfato Reactivo PO₄³⁻' : 'Reactive PO₄³⁻',
           value: m.reactivePhosphate.toFixed(1),
           unit: 'ug/L',
-          detail: m.reactivePhosphate > 35 ? 'Algal bloom risk' : 'Balanced mineral P',
+          detail:
+            m.reactivePhosphate > 35
+              ? isEs
+                ? 'Riesgo de floración algal'
+                : 'Algal bloom risk'
+              : isEs
+                ? 'P mineral equilibrado'
+                : 'Balanced mineral P',
         },
         {
-          label: 'Seafloor Sediment Pool',
+          label: isEs ? 'Sedimento Marino' : 'Seafloor Sediment Pool',
           value: m.sedimentPhosphatePool.toFixed(0),
           unit: 'MtP',
-          detail: 'Geologic sink (0% gas)',
+          detail: isEs ? 'Sumidero geológico (0% gas)' : 'Geologic sink (0% gas)',
         },
       ];
     case 'water':
       return [
         {
-          label: 'Precipitation',
+          label: isEs ? 'Precipitación' : 'Precipitation',
           value: m.precipitationRate.toFixed(0),
-          unit: 'mm/yr',
-          detail: `Transpiration ${m.transpirationFlux.toFixed(0)} mm/yr`,
+          unit: isEs ? 'mm/año' : 'mm/yr',
+          detail: `${isEs ? 'Transpiración' : 'Transpiration'} ${m.transpirationFlux.toFixed(0)} ${isEs ? 'mm/año' : 'mm/yr'}`,
         },
         {
-          label: 'Surface Runoff',
+          label: isEs ? 'Escorrentía Superficial' : 'Surface Runoff',
           value: m.surfaceRunoff.toFixed(0),
-          unit: 'mm/yr',
-          detail: `Infiltration ${m.infiltrationFlux.toFixed(0)} mm/yr`,
+          unit: isEs ? 'mm/año' : 'mm/yr',
+          detail: `${isEs ? 'Infiltración' : 'Infiltration'} ${m.infiltrationFlux.toFixed(0)} ${isEs ? 'mm/año' : 'mm/yr'}`,
         },
         {
-          label: 'Groundwater & Snowpack',
+          label: isEs ? 'Acuífero y Capa de Nieve' : 'Groundwater & Snowpack',
           value: m.groundwaterTable.toFixed(1),
           unit: '%',
-          detail: `Snowpack ${m.snowpackVolume.toFixed(0)}%`,
+          detail: `${isEs ? 'Nieve' : 'Snowpack'} ${m.snowpackVolume.toFixed(0)}%`,
         },
       ];
     case 'climate':
       return [
         {
-          label: 'Global Temp Anomaly',
+          label: isEs ? 'Anomalía Térmica Global' : 'Global Temp Anomaly',
           value: `${m.globalTempAnomaly >= 0 ? '+' : ''}${m.globalTempAnomaly.toFixed(2)}`,
           unit: '°C',
           detail: `CO₂ ${m.atmosphericCO2.toFixed(0)} ppm · pH ${m.oceanPH.toFixed(2)}`,
         },
         {
-          label: 'Coastal Dissolved O₂',
+          label: isEs ? 'O₂ Disuelto Costero' : 'Coastal Dissolved O₂',
           value: m.dissolvedOxygen.toFixed(2),
           unit: 'mg/L',
-          detail: `Bloom Index ${m.algalBloomIndex.toFixed(0)}/100`,
+          detail: `${isEs ? 'Índice Algal' : 'Bloom Index'} ${m.algalBloomIndex.toFixed(0)}/100`,
         },
         {
-          label: 'Ecosystem Health',
+          label: isEs ? 'Salud del Ecosistema' : 'Ecosystem Health',
           value: m.ecosystemHealth.toFixed(1),
           unit: '%',
-          detail: `Snow ${m.snowpackVolume.toFixed(0)}% · Aquifer ${m.groundwaterTable.toFixed(0)}%`,
+          detail: `${isEs ? 'Nieve' : 'Snow'} ${m.snowpackVolume.toFixed(0)}% · ${isEs ? 'Acuífero' : 'Aquifer'} ${m.groundwaterTable.toFixed(0)}%`,
         },
       ];
   }
@@ -197,8 +214,16 @@ export default function App() {
   );
   const [isExportOpen, setIsExportOpen] = useState<boolean>(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState<boolean>(false);
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === 'undefined') return 'en';
+    return localStorage.getItem('terraflux_lang') === 'es' ? 'es' : 'en';
+  });
 
   const wsRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem('terraflux_lang', language);
+  }, [language]);
 
   useEffect(() => {
     localStorage.setItem('terraflux_room', roomCode);
@@ -456,12 +481,13 @@ export default function App() {
       ? LEARNING_MODULES[currentModuleIdx + 1]
       : null;
 
-  const moduleKPIs = getModuleKPIs(activeModule, currentMetrics);
+  const isEs = language === 'es';
+  const moduleKPIs = getModuleKPIs(activeModule, currentMetrics, language);
 
   const navTabs: { id: ActiveTab; label: string }[] = [
-    { id: 'modules', label: 'Learning Modules' },
-    { id: 'analytics', label: 'Trend Analytics' },
-    { id: 'classroom', label: 'Classroom Lab' },
+    { id: 'modules', label: isEs ? 'Módulos de Aprendizaje' : 'Learning Modules' },
+    { id: 'analytics', label: isEs ? 'Análisis de Tendencias' : 'Trend Analytics' },
+    { id: 'classroom', label: isEs ? 'Laboratorio Escolar' : 'Classroom Lab' },
   ];
 
   const isLockedDesktop = activeTab === 'modules';
@@ -472,9 +498,9 @@ export default function App() {
         isLockedDesktop ? 'lg:h-dvh lg:overflow-hidden' : ''
       }`}
     >
-      {/* Top Bar Contract: Zone 1 (Wordmark) — Zone 2 (3 Nav Links) — Zone 3 (1 Primary CTA) */}
+      {/* Top Bar Contract: Zone 1 (Wordmark) — Zone 2 (3 Nav Links) — Zone 3 (Language Toggle + Export CTA) */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shrink-0">
-        <div className="max-w-[1560px] mx-auto px-3 sm:px-5 h-10 flex items-center justify-between gap-6">
+        <div className="max-w-[1560px] mx-auto px-3 sm:px-5 h-10 flex items-center justify-between gap-4">
           <button
             type="button"
             onClick={() => setActiveTab('modules')}
@@ -483,7 +509,7 @@ export default function App() {
             TerraFlux
           </button>
 
-          <nav className="flex items-center gap-6 overflow-x-auto">
+          <nav className="flex items-center gap-5 sm:gap-6 overflow-x-auto">
             {navTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -504,13 +530,23 @@ export default function App() {
             })}
           </nav>
 
-          <div className="shrink-0">
+          <div className="shrink-0 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setLanguage((prev) => (prev === 'en' ? 'es' : 'en'))}
+              title={isEs ? 'Switch interface to English' : 'Cambiar toda la pantalla a español'}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-md transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              <Languages className="w-3.5 h-3.5 text-sky-700" />
+              <span>{isEs ? 'English' : 'Español'}</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setIsExportOpen(true)}
               className="px-3 py-1 text-xs font-semibold text-white bg-slate-900 rounded-md hover:bg-slate-800 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
-              Export Report
+              {isEs ? 'Exportar Reporte' : 'Export Report'}
             </button>
           </div>
         </div>
@@ -546,7 +582,7 @@ export default function App() {
                           isActive || isExplored ? mod.accentDot : 'bg-slate-300'
                         }`}
                       />
-                      <span>{mod.shortTitle}</span>
+                      <span>{isEs ? MODULE_ES[mod.id].shortTitle : mod.shortTitle}</span>
                       {!isActive && isExplored && (
                         <Check className="w-3 h-3 text-emerald-600" />
                       )}
@@ -561,7 +597,11 @@ export default function App() {
                   onClick={() => handleSelectModule(nextModule.id)}
                   className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-sky-700 hover:text-sky-900 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  <span>Next: {nextModule.title}</span>
+                  <span>
+                    {isEs
+                      ? `Siguiente: ${MODULE_ES[nextModule.id].title}`
+                      : `Next: ${nextModule.title}`}
+                  </span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -591,6 +631,7 @@ export default function App() {
                   onStepForward={handleStepForward}
                   onReset={handleReset}
                   onOpenSummary={() => setIsSummaryOpen(true)}
+                  language={language}
                 />
               </div>
 
@@ -604,6 +645,7 @@ export default function App() {
                   showDescriptors={showDescriptors}
                   onToggleDescriptors={() => setShowDescriptors((prev) => !prev)}
                   onOpenGuide={() => setIsSummaryOpen(true)}
+                  language={language}
                 />
 
                 {/* Ultra-Slim Single-Row Module KPI Strip */}
@@ -647,6 +689,7 @@ export default function App() {
               setIsPlaying(false);
               setCurrentYear(yr);
             }}
+            language={language}
           />
         )}
 
@@ -665,6 +708,7 @@ export default function App() {
             onSaveMilestone={handleSaveMilestone}
             onDeleteMilestone={handleDeleteMilestone}
             onLoadGroupVariables={handleLoadGroupVariables}
+            language={language}
           />
         )}
       </main>
@@ -679,6 +723,7 @@ export default function App() {
         variables={variables}
         series={series}
         currentMetrics={currentMetrics}
+        language={language}
       />
 
       <CycleSummaryModal
@@ -686,6 +731,8 @@ export default function App() {
         onClose={() => setIsSummaryOpen(false)}
         activeModule={activeModule}
         onSwitchModule={handleSelectModule}
+        onPatchVariables={handlePatchVariables}
+        language={language}
       />
     </div>
   );
