@@ -1,0 +1,6 @@
+{
+  "name": "TerraFlux",
+  "description": "Interactive simulator modeling coupled Carbon, Nitrogen, Phosphorus, and Water cycles with layered Earth-system visualization, time-series analytics, report export, and real-time classroom collaboration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
