@@ -7,7 +7,7 @@ import {
   simulateTimeSeries,
 } from './simulation/engine';
 import { WatershedStage } from './components/WatershedStage';
-import { ControlDeck } from './components/ControlDeck';
+import { ControlDeck, type ControlDeckTab } from './components/ControlDeck';
 import { TrendAnalytics } from './components/TrendAnalytics';
 import { ClassroomDashboard } from './components/ClassroomDashboard';
 import { ExportModal } from './components/ExportModal';
@@ -164,6 +164,7 @@ function getModuleKPIs(
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('modules');
   const [activeModule, setActiveModule] = useState<LearningModuleId>('carbon');
+  const [deckTab, setDeckTab] = useState<ControlDeckTab>('controls');
   const [exploredModules, setExploredModules] = useState<LearningModuleId[]>(['carbon']);
   const [showDescriptors, setShowDescriptors] = useState<boolean>(true);
 
@@ -386,8 +387,10 @@ export default function App() {
           next.phosphateMining = source.phosphateMining;
           next.wastewaterPhosphates = source.wastewaterPhosphates;
           next.erosionControl = source.erosionControl;
+          next.deforestationRate = source.deforestationRate;
         } else if (mod === 'water') {
           next.solarForcing = source.solarForcing;
+          next.reforestationEffort = source.reforestationEffort;
           next.imperviousSurface = source.imperviousSurface;
           next.groundwaterExtraction = source.groundwaterExtraction;
         }
@@ -469,11 +472,11 @@ export default function App() {
     >
       {/* Top Bar Contract: Zone 1 (Wordmark) — Zone 2 (3 Nav Links) — Zone 3 (1 Primary CTA) */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shrink-0">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-8">
+        <div className="max-w-[1560px] mx-auto px-3 sm:px-5 h-10 flex items-center justify-between gap-6">
           <button
             type="button"
             onClick={() => setActiveTab('modules')}
-            className="text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap shrink-0 cursor-pointer"
+            className="text-base font-bold tracking-tight text-slate-900 whitespace-nowrap shrink-0 cursor-pointer"
           >
             TerraFlux
           </button>
@@ -486,7 +489,7 @@ export default function App() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative py-3 text-sm font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`relative py-2.5 text-sm font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                     isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
@@ -503,7 +506,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsExportOpen(true)}
-              className="px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="px-3 py-1 text-xs font-semibold text-white bg-slate-900 rounded-md hover:bg-slate-800 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               Export Report
             </button>
@@ -513,15 +516,15 @@ export default function App() {
 
       {/* Main Workspace */}
       <main
-        className={`flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3 ${
+        className={`flex-1 max-w-[1560px] w-full mx-auto px-3 sm:px-5 py-2 flex flex-col gap-2 ${
           isLockedDesktop ? 'lg:min-h-0' : ''
         }`}
       >
         {activeTab === 'modules' && (
           <>
-            {/* Compact Scaffolded 5-Module Stepper */}
-            <div className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shrink-0">
-              <div className="flex flex-wrap items-center gap-1.5">
+            {/* Slim Scaffolded 5-Module Stepper */}
+            <div className="bg-white border border-slate-200 rounded-xl px-2 py-1 flex flex-wrap items-center justify-between gap-1.5 shrink-0">
+              <div className="flex flex-wrap items-center gap-1">
                 {LEARNING_MODULES.map((mod) => {
                   const isActive = activeModule === mod.id;
                   const isExplored = exploredModules.includes(mod.id);
@@ -530,7 +533,7 @@ export default function App() {
                       key={mod.id}
                       type="button"
                       onClick={() => handleSelectModule(mod.id)}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs sm:text-[13px] font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                         isActive
                           ? 'bg-slate-900 text-white'
                           : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
@@ -543,7 +546,7 @@ export default function App() {
                       />
                       <span>{mod.shortTitle}</span>
                       {!isActive && isExplored && (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <Check className="w-3 h-3 text-emerald-600" />
                       )}
                     </button>
                   );
@@ -554,7 +557,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => handleSelectModule(nextModule.id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:text-sky-900 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-sky-700 hover:text-sky-900 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
                 >
                   <span>Next: {nextModule.title}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -562,11 +565,13 @@ export default function App() {
               )}
             </div>
 
-            {/* Viewport-Locked Two-Zone Workbench (Zero Scrollbars on Chromebook/Desktop) */}
-            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-              <div className="lg:col-span-4 h-full min-h-0">
+            {/* Viewport-Locked Two-Zone Workbench (Slim Controls + Maximized Image Stage) */}
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[295px_1fr] xl:grid-cols-[315px_1fr] gap-2.5 items-stretch">
+              <div className="h-full min-h-0">
                 <ControlDeck
                   activeModule={activeModule}
+                  activeTab={deckTab}
+                  onChangeTab={setDeckTab}
                   scenarioId={scenarioId}
                   onSelectScenario={handleSelectScenario}
                   variables={variables}
@@ -586,7 +591,7 @@ export default function App() {
                 />
               </div>
 
-              <div className="lg:col-span-8 h-full min-h-0 flex flex-col gap-3">
+              <div className="h-full min-h-0 flex flex-col gap-2">
                 <WatershedStage
                   activeModule={activeModule}
                   metrics={currentMetrics}
@@ -595,26 +600,33 @@ export default function App() {
                   onSelectNode={setSelectedNodeId}
                   showDescriptors={showDescriptors}
                   onToggleDescriptors={() => setShowDescriptors((prev) => !prev)}
+                  onOpenGuide={() =>
+                    setDeckTab((prev) => (prev === 'guide' ? 'controls' : 'guide'))
+                  }
                 />
 
-                {/* 3 Large-Font Module KPI Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0">
+                {/* Ultra-Slim Single-Row Module KPI Strip */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 shrink-0">
                   {moduleKPIs.map((kpi) => (
                     <div
                       key={kpi.label}
-                      className="px-4 py-3 rounded-xl border border-slate-200 bg-white"
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white flex items-center justify-between gap-2"
                     >
-                      <div className="text-xs font-medium text-slate-500">{kpi.label}</div>
-                      <div className="mt-0.5 flex items-baseline gap-1.5">
-                        <span className="text-2xl font-semibold font-mono tabular-nums text-slate-900">
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-semibold text-slate-500 truncate">
+                          {kpi.label}
+                        </div>
+                        <div className="text-[11px] text-slate-600 font-mono tabular-nums truncate">
+                          {kpi.detail}
+                        </div>
+                      </div>
+                      <div className="flex items-baseline gap-1 shrink-0">
+                        <span className="text-lg font-bold font-mono tabular-nums text-slate-900">
                           {kpi.value}
                         </span>
-                        <span className="text-xs font-mono text-slate-500">
+                        <span className="text-[11px] font-mono text-slate-500">
                           {kpi.unit}
                         </span>
-                      </div>
-                      <div className="mt-0.5 text-xs text-slate-600 font-mono tabular-nums truncate">
-                        {kpi.detail}
                       </div>
                     </div>
                   ))}

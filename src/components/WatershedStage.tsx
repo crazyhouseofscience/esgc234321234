@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Mountain, Eye, EyeOff, Route } from 'lucide-react';
+import { BookOpen, Mountain, Eye, EyeOff, Route, Sun } from 'lucide-react';
 import { LEARNING_MODULES } from '../simulation/engine';
 import { MODULE_MAP_CONFIGS } from '../simulation/modulesMap';
 import { DynamicSceneEffects } from './DynamicSceneEffects';
@@ -17,6 +17,7 @@ interface WatershedStageProps {
   onSelectNode: (nodeId: string) => void;
   showDescriptors: boolean;
   onToggleDescriptors: () => void;
+  onOpenGuide?: () => void;
 }
 
 interface PhotographicZoneLayer {
@@ -240,6 +241,7 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
   onSelectNode,
   showDescriptors,
   onToggleDescriptors,
+  onOpenGuide,
 }) => {
   const [backdropError, setBackdropError] = useState(false);
   const [activePathwayId, setActivePathwayId] = useState<string | null>(null);
@@ -273,40 +275,53 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
   const liveSceneCaption = getLiveSceneCaption(activeModule, metrics, variables);
 
   const durationSeconds = (rateNorm: number) => {
-    const clamped = Math.max(1.4, Math.min(6.5, 4.2 / Math.max(0.35, rateNorm)));
+    const clamped = Math.max(0.6, Math.min(5.0, 1.15 / Math.max(0.2, rateNorm)));
     return Number(clamped.toFixed(2));
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 border border-slate-200 bg-white rounded-xl overflow-hidden">
-      {/* Compact Stage Header with Optional Descriptors Toggle */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-b border-slate-200 bg-slate-50/80 shrink-0">
-        <div className="text-sm font-semibold text-slate-900 truncate">
+    <div className="flex flex-col flex-1 min-h-0 border border-slate-200 bg-white rounded-xl overflow-hidden shadow-xs">
+      {/* Slim Single-Row Stage Header */}
+      <div className="flex items-center justify-between gap-2 px-3 py-1.5 border-b border-slate-200 bg-slate-50/90 shrink-0">
+        <div className="min-w-0 flex-1 text-sm font-bold text-slate-950 truncate">
           {moduleMeta.step}. {moduleMeta.title}
           {showDescriptors && (
-            <span className="hidden sm:inline font-normal text-slate-600">
+            <span className="hidden xl:inline font-medium text-xs text-slate-600">
               {' '}
               — {moduleMeta.coreQuestion}
             </span>
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={onToggleDescriptors}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
-            showDescriptors
-              ? 'bg-slate-900 text-white border-slate-900'
-              : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
-          }`}
-        >
-          {showDescriptors ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-          <span>Descriptors: {showDescriptors ? 'On' : 'Off (Quiz)'}</span>
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {onOpenGuide && (
+            <button
+              type="button"
+              onClick={onOpenGuide}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-sky-700" />
+              <span>Cycle Guide</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onToggleDescriptors}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
+              showDescriptors
+                ? 'bg-slate-900 text-white border-slate-900'
+                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+            }`}
+          >
+            {showDescriptors ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+            <span>Labels: {showDescriptors ? 'On' : 'Off'}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Multi-Layer Photorealistic Interactive Map Canvas */}
-      <div className="relative flex-1 min-h-[260px] bg-slate-900 overflow-hidden select-none">
+      {/* Maximized Multi-Layer Photorealistic Interactive Map Canvas */}
+      <div className="relative flex-1 min-h-[340px] bg-slate-900 overflow-hidden select-none">
         {!backdropError ? (
           <>
             {/* Base Equilibrium Photograph */}
@@ -352,8 +367,8 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
           prefersReducedMotion={prefersReducedMotion}
         />
 
-        {/* Live Visual Change Status Caption */}
-        <div className="absolute left-3 bottom-3 px-2.5 py-1 rounded-md bg-slate-950/85 border border-white/15 text-slate-100 text-xs font-medium shadow-sm pointer-events-none z-10">
+        {/* Compact Top-Left Live Visual State Pill */}
+        <div className="absolute left-2.5 top-2 px-2.5 py-1 rounded-md bg-slate-950/85 border border-white/20 text-slate-100 text-[11px] font-semibold shadow-md pointer-events-none z-20 backdrop-blur-xs">
           Visual State: <span className="text-sky-300">{liveSceneCaption}</span>
         </div>
 
@@ -381,99 +396,150 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
           </defs>
 
           {mapConfig.pathways.map((p) => {
-            const rateNorm = p.getRateNorm(metrics, variables);
-            const durSec = durationSeconds(rateNorm);
+            const intensity = Math.max(0, Math.min(1.5, p.getRateNorm(metrics, variables)));
+            const isDormant = intensity <= 0.035;
+            const durSec = durationSeconds(intensity);
+            const speedBucket = Math.round(durSec * 6);
             const isHighlighted = activePathwayId === null || activePathwayId === p.id;
-            const strokeW = Math.min(6.5, Math.max(2.6, 2.4 + rateNorm * 2.4));
+
+            const intensityOpacity = isDormant
+              ? 0.18
+              : Math.min(1, 0.28 + intensity * 0.66);
+            const flowOpacity = isHighlighted
+              ? intensityOpacity
+              : Math.max(0.08, intensityOpacity * 0.22);
+            const haloOpacity = isDormant
+              ? 0.18
+              : Math.min(0.78, 0.22 + intensity * 0.48);
+            const strokeW = isDormant
+              ? 1.8
+              : Math.min(7.2, Math.max(2.1, 2.0 + intensity * 3.6));
+
+            const particleCount = isDormant
+              ? 0
+              : intensity < 0.4
+                ? 1
+                : intensity < 0.9
+                  ? 2
+                  : 3;
+            const particleRadius = isDormant
+              ? 0
+              : Math.min(5.6, Math.max(3.6, 3.5 + intensity * 1.4));
+            const particleOffsets = Array.from(
+              { length: particleCount },
+              (_, idx) => (idx * durSec) / particleCount
+            );
 
             return (
-              <g
-                key={p.id}
-                style={{
-                  opacity: isHighlighted ? 1 : 0.22,
-                  transition: 'opacity 180ms ease',
-                }}
-              >
-                <path
-                  d={p.svgPath}
-                  fill="none"
-                  stroke="rgba(15, 23, 42, 0.68)"
-                  strokeWidth={strokeW + 3}
-                  strokeLinecap="round"
-                />
+              <g key={p.id}>
+                <g
+                  style={{
+                    opacity: flowOpacity,
+                    transition: 'opacity 180ms ease',
+                  }}
+                >
+                  <path
+                    d={p.svgPath}
+                    fill="none"
+                    stroke={`rgba(15, 23, 42, ${haloOpacity.toFixed(2)})`}
+                    strokeWidth={strokeW + 3.0}
+                    strokeLinecap="round"
+                    style={{ transition: 'stroke-width 180ms ease, stroke 180ms ease' }}
+                  />
 
-                <path
-                  d={p.svgPath}
-                  fill="none"
-                  stroke={p.color}
-                  strokeWidth={strokeW}
-                  strokeLinecap="round"
-                  markerEnd={`url(#arrow-${p.id})`}
-                  className="animate-flow"
-                  style={{ '--flow-duration': `${durSec}s` } as React.CSSProperties}
-                />
+                  <path
+                    d={p.svgPath}
+                    fill="none"
+                    stroke={p.color}
+                    strokeWidth={strokeW}
+                    strokeLinecap="round"
+                    markerStart={p.bidirectional ? `url(#arrow-${p.id})` : undefined}
+                    markerEnd={`url(#arrow-${p.id})`}
+                    className={isDormant ? undefined : 'animate-flow'}
+                    strokeDasharray={isDormant ? '6 8' : undefined}
+                    style={
+                      {
+                        '--flow-duration': `${durSec}s`,
+                        transition: 'stroke-width 180ms ease',
+                      } as React.CSSProperties
+                    }
+                  />
 
-                {!prefersReducedMotion && (
-                  <>
-                    <circle r="4.8" fill={p.particleColor} stroke="#0f172a" strokeWidth="1.2">
-                      <animateMotion
-                        dur={`${durSec}s`}
-                        repeatCount="indefinite"
-                        path={p.svgPath}
-                      />
-                    </circle>
-                    <circle r="4.8" fill={p.particleColor} stroke="#0f172a" strokeWidth="1.2">
-                      <animateMotion
-                        dur={`${durSec}s`}
-                        begin={`${(durSec / 2).toFixed(2)}s`}
-                        repeatCount="indefinite"
-                        path={p.svgPath}
-                      />
-                    </circle>
-                  </>
-                )}
-
-                {showDescriptors && (
-                  <g transform={`translate(${p.labelX}, ${p.labelY})`}>
-                    <rect
-                      x="-82"
-                      y="-20"
-                      width="164"
-                      height="38"
-                      rx="6"
-                      fill="rgba(15, 23, 42, 0.9)"
-                      stroke={activePathwayId === p.id ? p.color : 'rgba(255,255,255,0.24)'}
-                      strokeWidth={activePathwayId === p.id ? '1.6' : '1'}
-                    />
-                    <text
-                      x="0"
-                      y="-3"
-                      textAnchor="middle"
-                      fill="#f8fafc"
-                      fontSize="11.5"
-                      fontWeight="600"
-                      fontFamily="Plus Jakarta Sans, sans-serif"
-                    >
-                      {p.stepNum}. {p.processName}
-                    </text>
-                    <text
-                      x="0"
-                      y="12"
-                      textAnchor="middle"
-                      fill={p.particleColor}
-                      fontSize="10.5"
-                      fontFamily="IBM Plex Mono, monospace"
-                    >
-                      {p.fromLabel} → {p.toLabel} · {p.getRateText(metrics, variables)}
-                    </text>
-                  </g>
-                )}
+                  {!prefersReducedMotion &&
+                    particleOffsets.map((offsetSec, idx) => (
+                      <circle
+                        key={`${p.id}-bead-${speedBucket}-${idx}`}
+                        r={particleRadius}
+                        fill={p.particleColor}
+                        stroke="#0f172a"
+                        strokeWidth="1.2"
+                      >
+                        <animateMotion
+                          dur={`${durSec}s`}
+                          begin={`${offsetSec.toFixed(2)}s`}
+                          repeatCount="indefinite"
+                          path={p.svgPath}
+                        />
+                      </circle>
+                    ))}
+                </g>
               </g>
             );
           })}
         </svg>
 
-        {/* Reservoir Hotspot Buttons */}
+        {/* Compact Single-Line Pathway Badges (Reveals Route + Rate on Hover/Click) */}
+        {showDescriptors &&
+          mapConfig.pathways.map((p) => {
+            const isHighlighted = activePathwayId === null || activePathwayId === p.id;
+            const isSelected = activePathwayId === p.id;
+            const intensity = Math.max(0, Math.min(1.5, p.getRateNorm(metrics, variables)));
+            const isDormant = intensity <= 0.035;
+            const xPct = (p.labelX / 10).toFixed(1);
+            const yPct = (p.labelY / 5.62).toFixed(1);
+
+            return (
+              <button
+                key={`label-${p.id}`}
+                type="button"
+                onMouseEnter={() => setActivePathwayId(p.id)}
+                onMouseLeave={() => setActivePathwayId(null)}
+                onClick={() =>
+                  setActivePathwayId((prev) => (prev === p.id ? null : p.id))
+                }
+                style={{
+                  left: `clamp(78px, ${xPct}%, calc(100% - 78px))`,
+                  top: `clamp(38px, ${yPct}%, calc(100% - 22px))`,
+                  borderColor: isSelected ? p.particleColor : p.color,
+                  opacity: isHighlighted ? (isDormant ? 0.65 : 1) : 0.28,
+                }}
+                className={`-translate-x-1/2 -translate-y-1/2 absolute px-2 py-0.5 rounded-md bg-slate-950/90 text-left border shadow-md transition-all cursor-pointer whitespace-nowrap ${
+                  isSelected ? 'scale-105 z-30 ring-2 ring-white/80' : 'hover:scale-105 z-20'
+                }`}
+              >
+                <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-white leading-tight">
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: p.particleColor }}
+                  />
+                  <span>
+                    {p.stepNum}. {p.processName}
+                  </span>
+                </div>
+                {isSelected && (
+                  <div
+                    className="text-[10.5px] font-mono font-semibold leading-tight mt-0.5 pl-3.5"
+                    style={{ color: p.particleColor }}
+                  >
+                    {p.fromLabel} {p.bidirectional ? '⇌' : '→'} {p.toLabel} ·{' '}
+                    {p.getRateText(metrics, variables)}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+
+        {/* Crisp Edge-Safe Reservoir Hotspot Cards */}
         {mapConfig.nodes.map((node) => {
           const isSelected = node.id === selectedNode.id;
           return (
@@ -481,17 +547,20 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
               key={node.id}
               type="button"
               onClick={() => onSelectNode(node.id)}
-              style={{ left: `${node.xPercent}%`, top: `${node.yPercent}%` }}
-              className={`-translate-x-1/2 -translate-y-1/2 absolute px-3 py-1.5 rounded-lg text-left transition-all cursor-pointer whitespace-nowrap shadow-md border ${
+              style={{
+                left: `clamp(92px, ${node.xPercent}%, calc(100% - 92px))`,
+                top: `clamp(40px, ${node.yPercent}%, calc(100% - 32px))`,
+              }}
+              className={`-translate-x-1/2 -translate-y-1/2 absolute px-2.5 py-1 rounded-md text-left transition-all cursor-pointer whitespace-nowrap shadow-md border-2 ${
                 isSelected
-                  ? 'bg-slate-900 text-white border-white ring-2 ring-sky-400 scale-105 z-20'
-                  : 'bg-white/95 text-slate-900 border-slate-300 hover:bg-white hover:scale-105 z-10'
+                  ? 'bg-slate-950 text-white border-sky-300 ring-2 ring-sky-400/70 scale-105 z-30'
+                  : 'bg-white/95 text-slate-950 border-slate-800/85 hover:bg-white hover:scale-105 z-20'
               }`}
             >
-              <div className="text-xs font-semibold leading-tight">{node.label}</div>
+              <div className="text-xs sm:text-[13px] font-bold leading-tight">{node.label}</div>
               {showDescriptors && (
                 <div
-                  className={`text-[11px] font-mono leading-tight ${
+                  className={`text-[10.5px] sm:text-[11px] font-mono font-semibold leading-tight ${
                     isSelected ? 'text-sky-300' : 'text-slate-600'
                   }`}
                 >
@@ -503,14 +572,21 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
         })}
 
         {showDescriptors && activeModule === 'phosphorus' && (
-          <div className="absolute left-3 top-3 px-3 py-1.5 rounded-md bg-slate-950/90 border border-violet-400/60 text-violet-100 text-xs font-medium shadow-sm">
-            No Gas Phase — Travels Rock → Soil → Water → Sediment
+          <div className="absolute right-2.5 top-2 px-2.5 py-1 rounded-md bg-slate-950/90 border border-violet-400 text-violet-100 text-[11px] font-semibold shadow-md z-20">
+            No Gas Phase — Rock → Soil → Life → Ocean → Sediment
+          </div>
+        )}
+
+        {showDescriptors && activeModule === 'water' && (
+          <div className="absolute right-2.5 top-2 px-2.5 py-1 rounded-md bg-slate-950/90 border border-amber-300 text-amber-100 text-[11px] font-semibold flex items-center gap-1.5 shadow-md z-20">
+            <Sun className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+            <span>Sun drives evaporation · Gravity pulls rain/snow</span>
           </div>
         )}
 
         {activeModule === 'climate' && metrics.algalBloomIndex >= 45 && (
-          <div className="absolute right-3 top-3 px-3 py-1.5 rounded-md bg-rose-950/90 border border-rose-500/60 text-rose-100 text-xs font-medium flex items-center gap-2 shadow-sm">
-            <span className="font-mono font-semibold text-rose-300">▲ HYPOXIA ALERT</span>
+          <div className="absolute right-2.5 top-2 px-2.5 py-1 rounded-md bg-rose-950/95 border border-rose-400 text-rose-100 text-[11px] font-semibold flex items-center gap-2 shadow-md z-20">
+            <span className="font-mono font-bold text-rose-300">▲ HYPOXIA ALERT</span>
             <span className="font-mono tabular-nums">
               DO: {metrics.dissolvedOxygen.toFixed(2)} mg/L
             </span>
@@ -518,15 +594,17 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
         )}
       </div>
 
-      {/* Compact Route & Reservoir Strip */}
-      <div className="px-3.5 py-2.5 bg-slate-50 border-t border-slate-200 space-y-2 shrink-0">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 mr-1">
+      {/* Slim Single-Row Route Strip + Compact Inspector Bar */}
+      <div className="px-3 py-1.5 bg-slate-50 border-t border-slate-200 space-y-1.5 shrink-0">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-700 mr-1 shrink-0">
             <Route className="w-3.5 h-3.5 text-slate-500" />
             Routes:
           </span>
           {mapConfig.pathways.map((p) => {
             const selected = activePathwayId === p.id;
+            const intensity = Math.max(0, Math.min(1.5, p.getRateNorm(metrics, variables)));
+            const isDormant = intensity <= 0.035;
             return (
               <button
                 key={p.id}
@@ -536,43 +614,53 @@ export const WatershedStage: React.FC<WatershedStageProps> = ({
                 onClick={() =>
                   setActivePathwayId((prev) => (prev === p.id ? null : p.id))
                 }
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                title={`${p.fromLabel} ${p.bidirectional ? '⇌' : '→'} ${p.toLabel} (${p.getRateText(metrics, variables)})`}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] sm:text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
                   selected
                     ? 'bg-slate-900 text-white border-slate-900'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-slate-300'
+                    : isDormant
+                      ? 'bg-white/75 text-slate-500 border-slate-200 hover:border-slate-300'
+                      : 'bg-white text-slate-800 border-slate-300 hover:border-slate-400'
                 }`}
               >
                 <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: p.color }}
+                  className="w-2 h-2 rounded-full shrink-0 transition-opacity"
+                  style={{
+                    backgroundColor: p.color,
+                    opacity: isDormant ? 0.25 : Math.min(1, 0.35 + intensity * 0.65),
+                  }}
                 />
                 <span>
-                  {p.stepNum}. {p.fromLabel}
+                  {p.stepNum}. {p.processName}
                 </span>
-                <ArrowRight className="w-3 h-3 opacity-60 shrink-0" />
-                <span>{p.toLabel}</span>
               </button>
             );
           })}
         </div>
 
         {showDescriptors && (
-          <div className="text-xs text-slate-700 leading-snug flex flex-wrap items-center justify-between gap-2 bg-white px-3 py-2 rounded-lg border border-slate-200">
+          <div className="text-xs text-slate-800 leading-snug bg-white px-2.5 py-1.5 rounded-md border border-slate-200 flex items-center justify-between gap-2">
             {inspectedPathway ? (
-              <div>
-                <strong className="text-slate-900">
-                  {inspectedPathway.stepNum}. {inspectedPathway.processName} ({inspectedPathway.fromLabel} → {inspectedPathway.toLabel}):
+              <div className="truncate sm:whitespace-normal">
+                <strong className="text-slate-950">
+                  {inspectedPathway.stepNum}. {inspectedPathway.processName} ({inspectedPathway.fromLabel}{' '}
+                  {inspectedPathway.bidirectional ? '⇌' : '→'} {inspectedPathway.toLabel} ·{' '}
+                  {inspectedPathway.getRateText(metrics, variables)}):
                 </strong>{' '}
                 {inspectedPathway.explanation}{' '}
-                <span className="font-mono text-slate-600">[{inspectedPathway.chemicalChange}]</span>
+                <span className="font-mono font-semibold text-slate-700">
+                  [{inspectedPathway.chemicalChange}]
+                </span>
               </div>
             ) : (
-              <div>
-                <strong className="text-slate-900">
+              <div className="truncate sm:whitespace-normal">
+                <strong className="text-slate-950">
                   {selectedNode.label} ({selectedNode.chemicalForm}):
                 </strong>{' '}
                 {selectedNode.summary}{' '}
-                <span className="font-mono text-slate-600">[{selectedNode.equation}]</span>
+                <span className="font-mono font-semibold text-slate-700">
+                  [{selectedNode.equation}]
+                </span>
               </div>
             )}
           </div>

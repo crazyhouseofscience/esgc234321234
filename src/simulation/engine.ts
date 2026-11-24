@@ -31,7 +31,15 @@ export interface SubstanceItem {
   role: string;
 }
 
+export interface CycleFactItem {
+  topic: string;
+  detail: string;
+}
+
 export interface DiscussionGuide {
+  mainReservoirs: string;
+  biologicalNeeds: string;
+  keyFacts: CycleFactItem[];
   substances: SubstanceItem[];
   discussionPrompts: string[];
   experiments: {
@@ -43,15 +51,41 @@ export interface DiscussionGuide {
 
 export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide> = {
   carbon: {
+    mainReservoirs:
+      'Atmosphere (CO₂ gas), living plants & animals, soil humus, fossil fuels underground, and dissolved carbon in Earth’s oceans (largest active surface sink).',
+    biologicalNeeds:
+      'Carbon forms the molecular backbone of carbohydrates (glucose C₆H₁₂O₆), proteins, fats/lipids, and DNA in all living cells.',
+    keyFacts: [
+      {
+        topic: 'Photosynthesis & Food Chains',
+        detail:
+          'Plants (primary producers) take in atmospheric CO₂ and convert it into sugars. Carbon moves to animals (consumers) when herbivores eat plants and carnivores eat other animals.',
+      },
+      {
+        topic: 'Respiration & Detritus Feeders',
+        detail:
+          'Plants, animals, decomposers (bacteria, fungi), and detritus feeders (worms, insects) break down food and dead matter, returning CO₂ to the air via cellular respiration.',
+      },
+      {
+        topic: 'How Fossil Fuels Form',
+        detail:
+          'Coal, oil, and natural gas formed underground over millions of years from buried ancient plants and marine organisms compressed under high heat and pressure without oxygen.',
+      },
+      {
+        topic: 'Combustion & Two-Way Ocean Exchange',
+        detail:
+          'Burning fossil fuels rapidly adds locked underground carbon into atmospheric CO₂. Oceans exchange CO₂ both ways across the air-sea boundary, dissolving excess CO₂ into carbonic acid (H₂CO₃).',
+      },
+    ],
     substances: [
-      { name: 'Carbon Dioxide', formula: 'CO₂', state: 'Gas', role: 'Traps infrared heat in air; absorbed by leaves & oceans.' },
-      { name: 'Plant Sugars & Wood', formula: 'C₆H₁₂O₆', state: 'Living Biomass', role: 'Stored by forests and deep-rooted prairie grasses.' },
-      { name: 'Coal, Oil & Natural Gas', formula: 'CₓHᵧ', state: 'Solid / Mineral', role: 'Fossilized carbon burned in factories and vehicles.' },
-      { name: 'Carbonic Acid', formula: 'H₂CO₃', state: 'Liquid / Dissolved', role: 'Forms when excess CO₂ dissolves in ocean water, lowering pH.' },
+      { name: 'Carbon Dioxide', formula: 'CO₂', state: 'Gas', role: 'Traps infrared heat in air; absorbed by leaves & exchanged with oceans.' },
+      { name: 'Plant Sugars & Wood', formula: 'C₆H₁₂O₆', state: 'Living Biomass', role: 'Stored by forests and deep-rooted prairie grasses; eaten by consumers.' },
+      { name: 'Coal, Oil & Natural Gas', formula: 'CₓHᵧ', state: 'Solid / Mineral', role: 'Ancient underground fossilized carbon burned in factories and vehicles.' },
+      { name: 'Carbonic Acid', formula: 'H₂CO₃', state: 'Liquid / Dissolved', role: 'Forms when excess CO₂ dissolves in ocean water, lowering ocean pH.' },
     ],
     discussionPrompts: [
-      'If factories increase CO₂ emissions, can planting forests and prairie grasses alone stop ocean acidification?',
-      'Why do grasslands store most of their carbon underground in roots, while forests store more above ground in trunks?',
+      'How does carbon move from the atmosphere into plants, then to animals, and back through decomposers and detritus feeders?',
+      'If factories increase fossil fuel combustion, can planting forests and prairie grasses alone stop ocean acidification?',
     ],
     experiments: [
       {
@@ -67,15 +101,41 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
     ],
   },
   nitrogen: {
+    mainReservoirs:
+      'Earth’s atmosphere is 78% nitrogen gas (N₂), making air the largest nitrogen reservoir, alongside soil organic matter and dissolved nitrates.',
+    biologicalNeeds:
+      'Every living organism needs nitrogen to build Proteins (amino acids) and Nucleic Acids (DNA and RNA), as well as ATP and plant chlorophyll.',
+    keyFacts: [
+      {
+        topic: 'Why Air N₂ Cannot Be Used Directly',
+        detail:
+          'Atmospheric N₂ atoms are locked together by a very strong triple covalent bond (N≡N) that plants and animals lack the enzymes to break.',
+      },
+      {
+        topic: 'Nitrogen Fixation (Bacteria & Lightning)',
+        detail:
+          'Nitrogen-fixing bacteria in soil and legume root nodules (clover, beans)—plus high-energy lightning—convert N₂ gas into usable ammonia/ammonium (NH₃ / NH₄⁺).',
+      },
+      {
+        topic: 'Ammonification, Nitrification & Assimilation',
+        detail:
+          'Decomposers break down dead organisms and waste into ammonium (Ammonification: NH₄⁺). Nitrifying bacteria convert ammonium into nitrates (Nitrification: NO₃⁻), which plants absorb (Assimilation) and herbivores eat (Consumption).',
+      },
+      {
+        topic: 'Denitrification Completes the Cycle',
+        detail:
+          'In waterlogged wetland soils, denitrifying bacteria strip oxygen from nitrate (NO₃⁻) and release harmless N₂ gas back into the atmosphere.',
+      },
+    ],
     substances: [
-      { name: 'Dinitrogen Gas', formula: 'N₂ (78% of air)', state: 'Gas', role: 'Inert atmospheric reservoir; unusable until fixed by bacteria.' },
-      { name: 'Ammonia / Ammonium', formula: 'NH₃ / NH₄⁺', state: 'Liquid / Dissolved', role: 'Produced by legume root bacteria, manure, and fertilizer.' },
-      { name: 'Nitrate', formula: 'NO₃⁻', state: 'Liquid / Dissolved', role: 'Water-soluble plant nutrient that easily leaches into rivers.' },
-      { name: 'Nitrous Oxide', formula: 'N₂O', state: 'Gas', role: 'Potent greenhouse gas released from over-fertilized soils.' },
+      { name: 'Dinitrogen Gas', formula: 'N₂ (78% of air)', state: 'Gas', role: 'Triple-bonded atmospheric reservoir; unusable until fixed by bacteria or lightning.' },
+      { name: 'Ammonia / Ammonium', formula: 'NH₃ / NH₄⁺', state: 'Liquid / Dissolved', role: 'Formed by N-fixing bacteria & decomposers (ammonification).' },
+      { name: 'Nitrate', formula: 'NO₃⁻', state: 'Liquid / Dissolved', role: 'Produced by nitrifying bacteria; assimilated by plants or leached into rivers.' },
+      { name: 'Nitrous Oxide', formula: 'N₂O', state: 'Gas', role: 'Potent greenhouse gas released from over-fertilized soils and manure.' },
     ],
     discussionPrompts: [
       'Why can plants starve for nitrogen even though 78% of the air around their leaves is nitrogen gas (N₂)?',
-      'How do riparian wetland marshes act like biological kidneys for farm runoff?',
+      'Compare ammonification, nitrification, assimilation, and denitrification—which organisms drive each step?',
     ],
     experiments: [
       {
@@ -91,52 +151,120 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
     ],
   },
   phosphorus: {
+    mainReservoirs:
+      'Sedimentary phosphate rock formations on land and deep marine sediments on the ocean floor (NO atmospheric gas reservoir).',
+    biologicalNeeds:
+      'Living cells require phosphorus to build DNA and RNA, ATP (cellular energy), cell membrane phospholipids, and animal bones and teeth.',
+    keyFacts: [
+      {
+        topic: 'No Atmospheric Gas Phase',
+        detail:
+          'Unlike Water, Carbon, and Nitrogen, phosphorus NEVER enters the atmosphere as a gas—it cycles only through rock, soil, water, organisms, and ocean sediment.',
+      },
+      {
+        topic: 'Weathering, Absorption & Consumption',
+        detail:
+          'Rain weathering and erosion slowly release phosphate (PO₄³⁻) from rocks into soil and water. Plants absorb it through roots, and animals gain it by eating plants or other animals.',
+      },
+      {
+        topic: 'Decomposition & Runoff to Ocean',
+        detail:
+          'When organisms produce waste or die, decomposers return PO₄³⁻ to soil and water. Soil erosion, mining, and phosphate detergents wash excess PO₄³⁻ into rivers and oceans.',
+      },
+      {
+        topic: 'Marine Sediment & Geologic Upthrust',
+        detail:
+          'Phosphate settles to the ocean floor as marine sediment. Over millions of years, tectonic geologic upthrust lifts seafloor rock back onto land.',
+      },
+    ],
     substances: [
-      { name: 'Phosphate Mineral Rock', formula: 'Ca₃(PO₄)₂', state: 'Solid / Mineral', role: 'Locked in cliffs and mines; weathered slowly by rain.' },
-      { name: 'Orthophosphate', formula: 'PO₄³⁻', state: 'Liquid / Dissolved', role: 'Dissolved in runoff from mines, fertilizers, and detergents.' },
-      { name: 'Cell Energy & Genetics', formula: 'ATP / DNA', state: 'Living Biomass', role: 'Essential nutrient for every plant, algae, and animal cell.' },
+      { name: 'Phosphate Mineral Rock', formula: 'Ca₃(PO₄)₂', state: 'Solid / Mineral', role: 'Main Earth reservoir in rock cliffs and seafloor sediments; weathered by rain.' },
+      { name: 'Orthophosphate', formula: 'PO₄³⁻', state: 'Liquid / Dissolved', role: 'Absorbed by plants; excess from detergents & erosion triggers algal blooms.' },
+      { name: 'ATP, DNA & Phospholipids', formula: 'Organo-P', state: 'Living Biomass', role: 'Builds cell energy (ATP), genetics (DNA/RNA), cell membranes, and bones.' },
     ],
     discussionPrompts: [
-      'Unlike Carbon and Nitrogen, why does Phosphorus have ZERO gas phase in the atmosphere?',
-      'How do household detergents, sewage, and eroded farm soil cause coastal algal blooms even when nitrate is low?',
+      'Why does the phosphorus cycle take millions of years to return from the ocean floor to land, unlike carbon and nitrogen?',
+      'How do household detergents, sewage, and bare eroded soil trigger coastal algal blooms even when nitrate is low?',
     ],
     experiments: [
       {
         label: 'Test: Mining + Detergent Surge',
         description: 'High phosphate mining & wastewater with bare eroded soil',
-        patch: { phosphateMining: 40, wastewaterPhosphates: 85, erosionControl: 15 },
+        patch: { phosphateMining: 40, wastewaterPhosphates: 85, erosionControl: 15, deforestationRate: 55 },
       },
       {
         label: 'Test: Grass Buffers & P-Free Soap',
-        description: 'Terracing, grass strips, and phosphate-free detergents',
-        patch: { phosphateMining: 8, wastewaterPhosphates: 10, erosionControl: 90 },
+        description: 'Terracing, grass strips, intact forests, and P-free detergents',
+        patch: { phosphateMining: 8, wastewaterPhosphates: 10, erosionControl: 90, deforestationRate: 8 },
       },
     ],
   },
   water: {
+    mainReservoirs:
+      'Oceans hold ~97% of Earth’s water. Freshwater is stored in glaciers/ice caps, underground aquifers, lakes, rivers, and atmospheric vapor.',
+    biologicalNeeds:
+      'Organisms need water for: (1) photosynthesis & cellular metabolism, (2) transporting nutrients/oxygen in blood and plant sap, (3) regulating body temperature, and (4) aquatic habitats.',
+    keyFacts: [
+      {
+        topic: 'Sun Energy & Gravity Drive the Cycle',
+        detail:
+          'Solar energy from the Sun drives evaporation from oceans and land. Once vapor cools and condenses into clouds, gravity pulls rain, sleet, and snow back to Earth as precipitation.',
+      },
+      {
+        topic: 'Transpiration from Trees & Plants',
+        detail:
+          'Trees and plants pull soil water through their roots and release water vapor directly back into the atmosphere through leaf stomata (transpiration).',
+      },
+      {
+        topic: 'What an Aquifer Is & Two Routes to Ocean',
+        detail:
+          'An aquifer is an underground layer of permeable rock, sand, or gravel holding groundwater. Water travels from land back to the ocean via surface runoff (rivers) AND slow underground aquifer seepage.',
+      },
+      {
+        topic: 'How Precipitation Shapes Ecosystems',
+        detail:
+          'Precipitation amounts determine soil moisture and plant types (lush rainforests vs. grasslands vs. deserts), directly controlling food, shelter, and drinking water for animals.',
+      },
+    ],
     substances: [
-      { name: 'Water Vapor', formula: 'H₂O(g)', state: 'Gas', role: 'Invisible moisture evaporated from oceans and transpired by leaves.' },
-      { name: 'Liquid Water & Aquifer', formula: 'H₂O(l)', state: 'Liquid / Dissolved', role: 'Flows as rain, rivers, and underground groundwater reserves.' },
-      { name: 'Glacial Ice & Snowpack', formula: 'H₂O(s)', state: 'Solid / Mineral', role: 'Stores winter snow and feeds cool river flow all summer.' },
+      { name: 'Water Vapor', formula: 'H₂O(g)', state: 'Gas', role: 'Evaporated by Sun heat from oceans and transpired by tree leaves.' },
+      { name: 'Liquid Water & Aquifer', formula: 'H₂O(l)', state: 'Liquid / Dissolved', role: 'Flows in precipitation, surface runoff, and subsurface aquifer seepage.' },
+      { name: 'Glacial Ice & Snowpack', formula: 'H₂O(s)', state: 'Solid / Mineral', role: 'Stores winter snow and feeds cool river runoff through dry summers.' },
     ],
     discussionPrompts: [
-      'When cities replace forests and grasslands with asphalt roads, what happens to aquifer recharge vs. flash flooding?',
-      'How does a +2°C rise in air temperature affect mountain snowpack and summer water supply?',
+      'Name two distinct paths water takes from land back to the ocean, and test how paving cities changes aquifer seepage vs. surface runoff.',
+      'How does increasing Sun heat (+°C) or removing trees change snowpack, transpiration, and river runoff?',
     ],
     experiments: [
       {
         label: 'Test: Paved City + Heavy Pumping',
-        description: '80% asphalt pavement and intense irrigation pumping',
+        description: '80% asphalt pavement, fewer trees, and intense well pumping',
         patch: { imperviousSurface: 80, groundwaterExtraction: 85, solarForcing: 1.5, reforestationEffort: 15 },
       },
       {
-        label: 'Test: Sponge Watershed',
-        description: 'Permeable forest/grassland soils with modest pumping',
-        patch: { imperviousSurface: 12, groundwaterExtraction: 20, solarForcing: 0.0, reforestationEffort: 80 },
+        label: 'Test: Forest Sponge Watershed',
+        description: 'Dense trees, permeable soils, and sustainable well pumping',
+        patch: { imperviousSurface: 12, groundwaterExtraction: 20, solarForcing: 0.0, reforestationEffort: 85 },
       },
     ],
   },
   climate: {
+    mainReservoirs:
+      'Coupled Earth System: Atmosphere (CO₂, N₂O, H₂O vapor), Forests & Soils, Freshwater Aquifers, and Coastal Oceans.',
+    biologicalNeeds:
+      'Balanced carbon, nitrogen, phosphorus, and water cycles maintain stable temperatures, breathable dissolved oxygen (>6.5 mg/L), and buffered ocean pH (~8.1).',
+    keyFacts: [
+      {
+        topic: 'Greenhouse Warming & Snowmelt',
+        detail:
+          'Fossil CO₂ and agricultural N₂O trap infrared heat, raising global temperatures, shrinking mountain snowpack, and intensifying extreme rainfall runoff.',
+      },
+      {
+        topic: 'Coupled Nutrient Dead Zones',
+        detail:
+          'Heavy storm runoff flushes excess Nitrogen (NO₃⁻) and Phosphorus (PO₄³⁻) into warmer coastal bays, sparking explosive algal blooms that decompose and strip dissolved oxygen.',
+      },
+    ],
     substances: [
       { name: 'Greenhouse Gases', formula: 'CO₂ + N₂O + H₂O(g)', state: 'Gas', role: 'Amplify warming, melt snowpack, and intensify storm runoff.' },
       { name: 'Coastal Nutrient Cocktail', formula: 'NO₃⁻ + PO₄³⁻', state: 'Liquid / Dissolved', role: 'Washed from land by storms to spark massive algal blooms.' },
@@ -150,12 +278,12 @@ export const MODULE_DISCUSSION_GUIDES: Record<LearningModuleId, DiscussionGuide>
       {
         label: 'Test: Compound Crisis',
         description: 'High factories, high fertilizer, paved roads, low forests',
-        patch: { ...{ fossilFuelEmissions: 14, deforestationRate: 65, syntheticFertilizer: 165, phosphateMining: 38, wastewaterPhosphates: 70, imperviousSurface: 65, solarForcing: 1.2, wetlandBuffer: 20 } },
+        patch: { fossilFuelEmissions: 14, deforestationRate: 65, syntheticFertilizer: 165, phosphateMining: 38, wastewaterPhosphates: 70, imperviousSurface: 65, solarForcing: 1.2, wetlandBuffer: 20 },
       },
       {
         label: 'Test: Net-Zero & Wetland Fix',
         description: 'Cut factory fuels, restore forests, prairies, and wetlands',
-        patch: { ...{ fossilFuelEmissions: 1.5, deforestationRate: 5, reforestationEffort: 85, grasslandCover: 85, syntheticFertilizer: 35, wetlandBuffer: 90, phosphateMining: 6, wastewaterPhosphates: 12, erosionControl: 90, imperviousSurface: 15, solarForcing: 0.1 } },
+        patch: { fossilFuelEmissions: 1.5, deforestationRate: 5, reforestationEffort: 85, grasslandCover: 85, syntheticFertilizer: 35, wetlandBuffer: 90, phosphateMining: 6, wastewaterPhosphates: 12, erosionControl: 90, imperviousSurface: 15, solarForcing: 0.1 },
       },
     ],
   },
@@ -345,6 +473,7 @@ export const SCENARIO_PRESETS: Record<ScenarioId, ScenarioPreset> = {
 export interface VariableDefinition {
   key: keyof SimulationVariables;
   cycle: CycleId;
+  relatedCycles?: CycleId[];
   label: string;
   substanceTag: string;
   unit: string;
@@ -364,18 +493,19 @@ export const VARIABLE_DEFINITIONS: VariableDefinition[] = [
     min: 0,
     max: 20,
     step: 0.5,
-    mechanismHint: 'Burns coal and oil, releasing CO₂ gas into the air.',
+    mechanismHint: 'Combustion burns coal & oil, releasing ancient CO₂ gas into air.',
   },
   {
     key: 'reforestationEffort',
     cycle: 'carbon',
+    relatedCycles: ['water'],
     label: 'Forests & Woodlands',
-    substanceTag: 'Trees (CO₂ → Wood)',
+    substanceTag: 'Trees (CO₂ & Transpiration)',
     unit: '%',
     min: 0,
     max: 100,
     step: 1,
-    mechanismHint: 'Trees absorb CO₂ gas, cool valleys, and anchor soil.',
+    mechanismHint: 'Trees absorb CO₂, transpire leaf vapor, and boost soil infiltration.',
   },
   {
     key: 'grasslandCover',
@@ -391,13 +521,14 @@ export const VARIABLE_DEFINITIONS: VariableDefinition[] = [
   {
     key: 'deforestationRate',
     cycle: 'carbon',
-    label: 'Land Clearing & Wildfire',
-    substanceTag: 'Wood → CO₂ + Ash',
+    relatedCycles: ['phosphorus'],
+    label: 'Land Clearing & Erosion',
+    substanceTag: 'Wood → CO₂ + Bare Soil',
     unit: '%',
     min: 0,
     max: 100,
     step: 1,
-    mechanismHint: 'Releases stored plant carbon and accelerates topsoil erosion.',
+    mechanismHint: 'Releases plant carbon and exposes topsoil to rain erosion.',
   },
   {
     key: 'syntheticFertilizer',
